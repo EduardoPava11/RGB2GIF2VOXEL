@@ -3,6 +3,7 @@
 //  RGB2GIF2VOXEL
 //
 //  Robust camera session management with proper preview setup
+//  Updated for iPhone 17 Pro's 18MP square front camera sensor
 //
 
 import Foundation
@@ -20,6 +21,7 @@ public final class ImprovedCameraManager: NSObject, ObservableObject {
     @Published public var capturedFrames: [Data] = []
     @Published public var currentFrameCount = 0
     @Published public var error: Error?
+    @Published public var isUsingFrontCamera = false
 
     // MARK: - Camera Components
 
@@ -43,7 +45,8 @@ public final class ImprovedCameraManager: NSObject, ObservableObject {
 
     // MARK: - Setup
 
-    public func setupSession() async throws {
+    public func setupSession(useFrontCamera: Bool = false) async throws {
+        self.isUsingFrontCamera = useFrontCamera
         let signpostState = PipelineSignpost.begin(.capture)
         defer { PipelineSignpost.end(.capture, signpostState) }
 
@@ -80,8 +83,25 @@ public final class ImprovedCameraManager: NSObject, ObservableObject {
         // Set session preset
         session.sessionPreset = .high
 
-        // Add video input
-        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+        // Add video input - prefer front camera for iPhone 17 Pro's 18MP square sensor
+        let position: AVCaptureDevice.Position = isUsingFrontCamera ? .front : .back
+
+        // For front camera, try to get TrueDepth camera first (iPhone 17 Pro)
+        var camera: AVCaptureDevice?
+        if isUsingFrontCamera {
+            // iPhone 17 Pro has 18MP square sensor with f/1.8 aperture
+            camera = AVCaptureDevice.default(.builtInTrueDepthCamera, for: .video, position: .front)
+            if camera != nil {
+                Log.camera.info("📸 Using iPhone 17 Pro TrueDepth 18MP square sensor")
+            }
+        }
+
+        // Fallback to standard camera
+        if camera == nil {
+            camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: position)
+        }
+
+        guard let camera = camera else {
             throw PipelineError.sessionSetupFailed("No camera available")
         }
 
@@ -114,6 +134,15 @@ public final class ImprovedCameraManager: NSObject, ObservableObject {
         }
 
         Log.camera.info("✅ Camera session configured successfully")
+    }
+
+    // MARK: - Camera Switching
+
+    public func switchCamera() async throws {
+        let newPosition = !isUsingFrontCamera
+        stopSession()
+        try await setupSession(useFrontCamera: newPosition)
+        startSession()
     }
 
     // MARK: - Session Control
@@ -237,8 +266,10 @@ extension ImprovedCameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
 
         guard let baseAddress = CVPixelBufferGetBaseAddress(imageBuffer) else { return }
 
-        // Extract center square (1080x1080 from camera)
-        let squareSize = min(width, height, 1080)  // Cap at 1080
+        // Extract center square - use full resolution for iPhone 17 Pro front camera
+        // iPhone 17 Pro front: 18MP square sensor gives us much more data to work with
+        let maxSize = isUsingFrontCamera ? min(width, height) : 1080
+        let squareSize = min(width, height, maxSize)
         let xOffset = (width - squareSize) / 2
         let yOffset = (height - squareSize) / 2
 
@@ -264,7 +295,8 @@ extension ImprovedCameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
 
         // Log progress more frequently for debugging
         if frameBuffer.count % 16 == 0 || frameBuffer.count == targetFrameCount {
-            Log.camera.info("📸 Captured \(self.frameBuffer.count)/\(self.targetFrameCount) frames")
+            let resolution = isUsingFrontCamera ? "18MP" : "2MP"
+            Log.camera.info("📸 Captured \(self.frameBuffer.count)/\(self.targetFrameCount) frames at \(resolution)")
         }
 
         // Check if we're stuck near the end

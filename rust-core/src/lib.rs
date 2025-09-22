@@ -6,6 +6,12 @@
 use std::time::Instant;
 use imagequant::{RGBA};
 
+// Include modules
+mod quantization;
+
+// Re-export for use
+use quantization::*;
+
 // UniFFI Error type matching the UDL
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessorError {
