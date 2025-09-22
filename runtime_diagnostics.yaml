@@ -1,0 +1,230 @@
+# iOS Camera Runtime Error Diagnostics Guide
+# Generated from real-world AVFoundation issues (2023-2024)
+
+runtime_errors:
+  black_screen:
+    symptoms:
+      - "App launches but camera preview is black"
+      - "UI overlays visible but no video feed"
+      - "Permission granted but still no preview"
+
+    causes:
+      session_not_started:
+        description: "AVCaptureSession never calls startRunning()"
+        diagnosis:
+          - "Check for 'Session running' log message"
+          - "Verify startRunning() called after setup"
+          - "Check session.isRunning property"
+        fix: |
+          // Ensure session starts on correct queue
+          sessionQueue.async {
+              self.session.startRunning()
+          }
+
+      preview_layer_not_attached:
+        description: "AVCaptureVideoPreviewLayer not in view hierarchy"
+        diagnosis:
+          - "Check if previewLayer.superlayer is nil"
+          - "Verify frame is non-zero"
+          - "Check videoGravity setting"
+        fix: |
+          // In UIViewRepresentable.updateUIView
+          previewLayer.frame = uiView.bounds
+          previewLayer.videoGravity = .resizeAspectFill
+
+      permission_timing:
+        description: "Session setup before permission granted"
+        diagnosis:
+          - "Check AVCaptureDevice.authorizationStatus"
+          - "Look for permission request timing"
+        fix: |
+          AVCaptureDevice.requestAccess(for: .video) { granted in
+              if granted {
+                  DispatchQueue.main.async {
+                      self.setupSession()
+                      self.startSession()
+                  }
+              }
+          }
+
+      ios17_specific_bug:
+        description: "iOS 17+ black screen on certain devices"
+        diagnosis:
+          - "Check iOS version >= 17.0"
+          - "Front camera particularly affected"
+        fix: |
+          // Force session restart
+          session.stopRunning()
+          Thread.sleep(forTimeInterval: 0.1)
+          session.startRunning()
+
+  session_freezing:
+    symptoms:
+      - "Camera stops responding after working initially"
+      - "Session interruption doesn't recover"
+      - "App needs background/foreground cycle to recover"
+
+    causes:
+      interruption_not_handled:
+        description: "AVCaptureSession interruption not properly handled"
+        diagnosis:
+          - "Monitor AVCaptureSession.interruptionEnded"
+          - "Check for memory pressure"
+        fix: |
+          NotificationCenter.default.addObserver(
+              self,
+              selector: #selector(sessionWasInterrupted),
+              name: .AVCaptureSessionWasInterrupted,
+              object: session
+          )
+
+      thread_blocking:
+        description: "startRunning() blocking main thread"
+        diagnosis:
+          - "UI freezes when starting camera"
+          - "iOS 18 purple warnings about main thread I/O"
+        fix: |
+          // Always use background queue for session operations
+          sessionQueue.async { [weak self] in
+              self?.session.startRunning()
+          }
+
+  permission_errors:
+    symptoms:
+      - "Camera permission dialog not appearing"
+      - "Permission granted but camera not working"
+      - "iOS 18 runtime warnings"
+
+    causes:
+      missing_info_plist:
+        description: "NSCameraUsageDescription not in Info.plist"
+        diagnosis:
+          - "Check Info.plist for camera key"
+          - "Permission dialog never appears"
+        fix: |
+          <key>NSCameraUsageDescription</key>
+          <string>Camera access needed for capturing frames</string>
+
+      main_thread_authorization:
+        description: "iOS 18 warns about main thread I/O"
+        diagnosis:
+          - "Purple runtime warnings in Xcode"
+          - "Checking authorizationStatus on main thread"
+        fix: |
+          Task {
+              let status = AVCaptureDevice.authorizationStatus(for: .video)
+              await MainActor.run {
+                  // Update UI based on status
+              }
+          }
+
+  device_discovery_failures:
+    symptoms:
+      - "No camera devices found"
+      - "AVCaptureDevice.default returns nil"
+      - "Discovery session finds no devices"
+
+    causes:
+      wrong_device_type:
+        description: "Using deprecated device types"
+        diagnosis:
+          - "Check device type constants"
+          - "Front camera particularly affected"
+        fix: |
+          let discoverySession = AVCaptureDevice.DiscoverySession(
+              deviceTypes: [.builtInWideAngleCamera, .builtInTrueDepthCamera],
+              mediaType: .video,
+              position: .front
+          )
+
+      simulator_issue:
+        description: "Running on simulator without camera"
+        diagnosis:
+          - "Check if running on simulator"
+        fix: |
+          #if targetEnvironment(simulator)
+              // Use mock camera or static image
+          #endif
+
+  memory_issues:
+    symptoms:
+      - "App crashes after capturing frames"
+      - "Memory warnings in console"
+      - "CVPixelBuffer not released"
+
+    causes:
+      pixel_buffer_retention:
+        description: "CVPixelBuffer not properly released"
+        diagnosis:
+          - "Monitor memory usage during capture"
+          - "Check for retain cycles"
+        fix: |
+          // Use autoreleasepool for frame processing
+          autoreleasepool {
+              CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+              defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
+              // Process frame
+          }
+
+diagnostic_steps:
+  1_check_permissions:
+    - "Verify Info.plist has NSCameraUsageDescription"
+    - "Check Settings > Privacy > Camera for app"
+    - "Log AVCaptureDevice.authorizationStatus"
+
+  2_verify_session_lifecycle:
+    - "Add logging to setupSession()"
+    - "Add logging to startSession()"
+    - "Check session.isRunning after start"
+    - "Monitor for interruption notifications"
+
+  3_validate_preview_layer:
+    - "Check previewLayer.frame in updateUIView"
+    - "Verify previewLayer.session is set"
+    - "Check videoGravity setting"
+    - "Ensure layer added to view hierarchy"
+
+  4_monitor_console:
+    - "Filter by process name in Console.app"
+    - "Look for AVFoundation error domains"
+    - "Check for memory warnings"
+    - "Watch for thread warnings (iOS 18)"
+
+quick_fixes:
+  force_restart_session: |
+    func forceRestartSession() {
+        sessionQueue.async { [weak self] in
+            self?.session.stopRunning()
+            Thread.sleep(forTimeInterval: 0.5)
+            self?.session.startRunning()
+        }
+    }
+
+  background_foreground_recovery: |
+    // iOS 13/17 workaround
+    NotificationCenter.default.addObserver(
+        self,
+        selector: #selector(appDidBecomeActive),
+        name: UIApplication.didBecomeActiveNotification,
+        object: nil
+    )
+
+    @objc func appDidBecomeActive() {
+        if !session.isRunning {
+            sessionQueue.async {
+                self.session.startRunning()
+            }
+        }
+    }
+
+testing_checklist:
+  - "✓ Info.plist has camera permission key"
+  - "✓ Permission request shown on first launch"
+  - "✓ Session setup called after permission granted"
+  - "✓ Session startRunning called on background queue"
+  - "✓ Preview layer attached with non-zero frame"
+  - "✓ Preview layer frame updated in updateUIView"
+  - "✓ Interruption notifications handled"
+  - "✓ Memory properly released in frame processing"
+  - "✓ Works after background/foreground cycle"
+  - "✓ No purple warnings in iOS 18"

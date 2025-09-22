@@ -1,0 +1,27 @@
+# Xcode 16 File System Synchronized Groups exclusion patterns
+# Files matching these patterns won't be included in build
+
+# Backup files
+*.excluded
+*.original
+*.backup
+*.bak
+
+# Temporary files
+*.tmp
+*.temp
+.*.swp
+*~
+
+# Version control
+.git/
+.svn/
+
+# Documentation (unless needed for resources)
+*.md
+!README.md
+
+# Scripts (not Swift source)
+*.sh
+*.py
+*.rb

@@ -1,0 +1,58 @@
+[package]
+name = "rgb2gif_processor"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "rgb2gif_processor"
+crate-type = ["cdylib", "staticlib", "lib"]
+
+[dependencies]
+# Core processing
+imagequant = "4.3"          # High-quality color quantization (libimagequant)
+gif = "0.13"                # GIF89a encoding
+rayon = "1.10"              # Data parallelism
+
+# FFI
+uniffi = { version = "0.28", features = ["bindgen"] }
+
+# Utilities
+bytemuck = "1.16"           # Safe transmutes for zero-copy
+thiserror = "1.0"           # Error handling
+log = "0.4"                 # Logging
+
+# Optional SIMD (behind feature flag)
+wide = { version = "0.7", optional = true }
+
+[features]
+default = []
+simd = ["wide"]
+bench = []
+
+
+[build-dependencies]
+uniffi = { version = "0.28", features = ["build"] }
+
+# For the bindings generator binary
+[dependencies.uniffi_bindgen]
+version = "0.28"
+optional = true
+
+[dependencies.camino]
+version = "1.2"
+optional = true
+
+[[bin]]
+name = "generate-bindings"
+required-features = ["uniffi_bindgen", "camino"]
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.bench]
+inherits = "release"
+debug = true

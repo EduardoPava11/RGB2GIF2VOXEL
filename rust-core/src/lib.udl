@@ -1,0 +1,68 @@
+// Single-FFI Pipeline UDL
+// Process all 256 frames in one call
+
+namespace rgb2gif_processor {
+    // Calculate buffer size for validation
+    [Throws=ProcessingError]
+    u32 calculate_buffer_size(u32 width, u32 height, u32 frame_count);
+
+    // Validate buffer before processing
+    boolean validate_buffer(sequence<u8> buffer, u32 expected_size);
+
+    // Main single-FFI call: Process all 256 frames to GIF89a
+    [Throws=ProcessingError]
+    ProcessResult process_all_frames(
+        sequence<u8> frames_rgba,  // Contiguous RGBA buffer (256*256*256*4 bytes)
+        u32 width,                 // Frame width (256)
+        u32 height,                // Frame height (256)
+        u32 frame_count,           // Number of frames (256)
+        QuantizeOpts quantize_opts,
+        GifOpts gif_opts
+    );
+}
+
+// Processing options for color quantization
+dictionary QuantizeOpts {
+    u32 color_count = 256;        // Target palette size (max 256 for GIF)
+    f32 quality = 10.0;           // NeuQuant quality (1-30, lower is better)
+    boolean dither = false;        // Apply dithering
+    u32 sample_factor = 10;        // Pixel sampling rate
+};
+
+// GIF encoding options
+dictionary GifOpts {
+    u16 delay_cs = 4;             // Frame delay in centiseconds (4cs = 25fps)
+    boolean loop_forever = true;   // Add NETSCAPE2.0 extension for infinite loop
+    u32 optimization_level = 2;    // 0=none, 1=basic, 2=aggressive
+    boolean include_tensor = false; // Include 256³ tensor in result
+};
+
+// Result from processing
+dictionary ProcessResult {
+    sequence<u8> gif_data;         // Complete GIF89a file data
+    u32 gif_size;                  // Size of GIF data
+    sequence<u8>? tensor_data;     // Optional 256³ tensor (if requested)
+    u32 palette_size;              // Actual palette size used
+    f64 processing_time_ms;        // Total processing time
+    ProcessingMetrics metrics;     // Detailed performance metrics
+};
+
+// Detailed performance metrics
+dictionary ProcessingMetrics {
+    f64 downsample_ms;             // Time for downsampling (if needed)
+    f64 quantization_ms;           // Time for color quantization
+    f64 palette_generation_ms;     // Time to build palette
+    f64 encoding_ms;               // Time for GIF encoding
+    f64 tensor_generation_ms;      // Time to build tensor (if requested)
+    u64 peak_memory_bytes;         // Peak memory usage
+};
+
+[Error]
+enum ProcessingError {
+    "InvalidDimensions",           // Width/height not 256
+    "InvalidFrameCount",           // Not exactly 256 frames
+    "BufferSizeMismatch",         // Buffer size doesn't match expected
+    "QuantizationFailed",         // NeuQuant algorithm failed
+    "EncodingFailed",             // GIF encoding failed
+    "OutOfMemory",                // Memory allocation failed
+};

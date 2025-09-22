@@ -1,0 +1,271 @@
+# RGB2GIF2VOXEL Architecture v3 - BGRA Pipeline for iPhone 17 Pro
+# Production-ready BGRA-aware pipeline with proper stride handling and GIF89a export
+
+version: "3.0"
+project: RGB2GIF2VOXEL
+target_device: "iPhone 17 Pro"
+description: "BGRA-optimized pipeline for square front camera capture → GIF89a voxel cube"
+
+# ============================================================================
+# CAPTURE LAYER - iPhone 17 Pro Front TrueDepth Camera
+# ============================================================================
+capture:
+  device_priority:
+    - ".builtInTrueDepthCamera"  # iPhone X+ primary
+    - ".builtInWideAngleCamera"   # Fallback
+
+  format:
+    pixel_format: "kCVPixelFormatType_32BGRA"  # iOS default, most reliable
+    fallback_format: "kCVPixelFormatType_32RGBA"  # Test if supported
+    resolution: "native_square"  # Use 1:1 clean aperture if available
+    fps: 30
+
+  memory_budget:
+    bgra_multiplier: 2.6  # BGRA uses 2.6x more memory than YUV420
+    max_in_flight_frames: 4  # Limit for memory pressure
+    drop_policy: "alwaysDiscardsLateVideoFrames: true"
+
+# ============================================================================
+# PREPROCESSING - Swift Side Before FFI
+# ============================================================================
+preprocessing:
+  stride_compaction:
+    description: "iOS 16-pixel alignment causes bytesPerRow > width*4"
+    algorithm: |
+      if bytesPerRow == width * 4:
+        // Already packed, use directly
+        return Data(bytes: baseAddress, count: width * height * 4)
+      else:
+        // Has padding, compact row by row
+        var compactData = Data(capacity: width * height * 4)
+        for row in 0..<height:
+          let rowStart = baseAddress + (row * bytesPerRow)
+          compactData.append(Data(bytes: rowStart, count: width * 4))
+        return compactData
+
+  channel_reordering:
+    when: "If Rust expects RGBA but camera provides BGRA"
+    method: "vImagePermuteChannels_ARGB8888"  # Use Accelerate.framework
+    fallback: "Manual byte swap in Rust if needed"
+
+  center_crop:
+    when: "Format not naturally square"
+    method: "Extract center region maintaining aspect ratio"
+
+# ============================================================================
+# FFI BOUNDARY - Minimal Surface Area
+# ============================================================================
+ffi:
+  functions:
+    - name: "yx_proc_batch_bgra"
+      signature: |
+        #[no_mangle]
+        pub extern "C" fn yx_proc_batch_bgra(
+          frames_ptr: *const *const u8,  // Array of frame pointers
+          frame_sizes: *const usize,      // Array of frame sizes
+          frame_count: usize,              // Number of frames
+          width: u32,                      // Frame width
+          height: u32,                     // Frame height
+          target_size: u32,                // Pyramid level (e.g., 32)
+          palette_size: u32,               // Colors per frame (e.g., 256)
+          indices_out: *mut u8,            // Output indices buffer
+          palettes_out: *mut u32,          // Output palettes buffer
+        ) -> i32
+
+    - name: "yx_gif_encode"
+      signature: |
+        #[no_mangle]
+        pub extern "C" fn yx_gif_encode(
+          indices: *const u8,              // N×N×N indices
+          palettes: *const u32,             // N×256 palette entries
+          cube_size: u32,                   // N (e.g., 32)
+          palette_size: u32,                // Colors per frame
+          delay_ms: u32,                    // Frame delay in milliseconds
+          out_buffer: *mut u8,              // Output GIF buffer
+          out_capacity: usize,              // Buffer capacity
+          out_size: *mut usize,             // Actual size written
+        ) -> i32
+
+  error_codes:
+    0: "Success"
+    -1: "Invalid input"
+    -2: "Buffer too small"
+    -3: "Processing error"
+    -4: "Memory allocation failed"
+
+# ============================================================================
+# PROCESSING PIPELINE - Rust Core
+# ============================================================================
+processing:
+  bgra_handling:
+    input_format: "BGRA from iOS"
+    internal_format: "RGBA for processing"
+    conversion: |
+      // Efficient BGRA → RGBA if needed
+      fn bgra_to_rgba(bgra: &[u8]) -> Vec<u8> {
+          let mut rgba = Vec::with_capacity(bgra.len());
+          for chunk in bgra.chunks_exact(4) {
+              rgba.push(chunk[2]); // R
+              rgba.push(chunk[1]); // G
+              rgba.push(chunk[0]); // B
+              rgba.push(chunk[3]); // A
+          }
+          rgba
+      }
+
+  resize:
+    algorithm: "Lanczos3"
+    library: "fast_image_resize"
+    target_sizes: [1080, 540, 256]  # Progressive downsample from HD to 256x256
+    downscale_ratio: "4.2:1"  # 1080 → 256 preserves detail
+
+  quantization:
+    algorithm: "NeuQuant"
+    colors_per_frame: 256
+    quality: 10  # 1-30, lower is better
+
+  frame_collection:
+    order: "Z-major"  # frame0, frame1, ..., frame255
+    target_count: 256  # Full 256 frames for temporal dimension
+    tensor_shape: "256 × 256 × 256"  # 16.7 million voxels
+
+# ============================================================================
+# GIF89A ENCODING
+# ============================================================================
+gif_encoding:
+  format: "GIF89a"
+  features:
+    - "Local palette per frame (256 colors)"
+    - "LZW compression"
+    - "Loop count: 0 (infinite)"
+    - "Frame delay: 40ms (25fps)"
+    - "Disposal method: RestoreToBackground"
+
+  optimization:
+    - "Frame differencing for smaller size"
+    - "Transparent pixels for unchanged regions"
+    - "Optimal palette ordering"
+
+# ============================================================================
+# CUBE VOXEL RENDERING
+# ============================================================================
+voxel_rendering:
+  framework: "SceneKit + Metal"
+
+  geometry:
+    type: "SCNBox per voxel"
+    optimization: "Instance rendering for performance"
+
+  texturing:
+    method: "3D texture from cube tensor"
+    format: "MTLPixelFormat.rgba8Unorm"
+
+  interaction:
+    - "Rotation via gesture recognizers"
+    - "Zoom via pinch"
+    - "Slice view for debugging"
+
+# ============================================================================
+# EXPORT FUNCTIONALITY
+# ============================================================================
+export:
+  gif_export:
+    location: "Documents directory"
+    naming: "cube_YYYYMMDD_HHMMSS.gif"
+    share_sheet: true
+
+  voxel_export:
+    formats:
+      - "USDZ for AR Quick Look"
+      - "PLY for 3D printing"
+      - "VOX for MagicaVoxel"
+
+  metadata:
+    - "Capture timestamp"
+    - "Device model"
+    - "Cube dimensions"
+    - "Color count"
+    - "Processing time"
+
+# ============================================================================
+# PERFORMANCE TARGETS
+# ============================================================================
+performance:
+  capture:
+    fps: 30
+    latency: "<50ms per frame"
+
+  processing:
+    resize: "<5ms per frame"
+    quantization: "<10ms per frame"
+
+  memory:
+    peak: "<1.2GB for 256³ cube capture"
+    sustained: "<600MB during processing"
+    per_frame: "4.5MB @ 1080x1080 BGRA"
+    total_frames: "1.15GB for 256 frames"
+
+  battery:
+    thermal_state: "Monitor and throttle if needed"
+    efficiency: "Prefer energy-efficient algorithms"
+
+# ============================================================================
+# ERROR HANDLING
+# ============================================================================
+error_handling:
+  capture_errors:
+    - "Camera permission denied → Request in settings"
+    - "Camera unavailable → Show error UI"
+    - "Memory pressure → Drop frames gracefully"
+
+  processing_errors:
+    - "FFI failure → Log and recover"
+    - "Quantization failure → Use fallback palette"
+    - "GIF encoding failure → Save raw tensor"
+
+  export_errors:
+    - "Disk full → Alert user"
+    - "Share failed → Retry options"
+
+# ============================================================================
+# TESTING REQUIREMENTS
+# ============================================================================
+testing:
+  unit_tests:
+    - "Stride compaction correctness"
+    - "BGRA → RGBA conversion"
+    - "FFI boundary safety"
+    - "GIF encoding validity"
+
+  integration_tests:
+    - "End-to-end capture → GIF"
+    - "Memory leak detection"
+    - "Performance benchmarks"
+
+  device_tests:
+    - "iPhone 17 Pro specific"
+    - "Front camera square format"
+    - "Thermal throttling behavior"
+
+# ============================================================================
+# IMPLEMENTATION CHECKLIST
+# ============================================================================
+implementation:
+  swift_side:
+    - [ ] Fix CVPixelBuffer stride handling
+    - [ ] Implement BGRA format detection
+    - [ ] Add proper error recovery
+    - [ ] Create GIF export UI
+    - [ ] Implement voxel rendering
+
+  rust_side:
+    - [ ] Handle BGRA input format
+    - [ ] Optimize batch processing
+    - [ ] Implement GIF89a encoder
+    - [ ] Add telemetry hooks
+
+  testing:
+    - [ ] Validate on iPhone 17 Pro
+    - [ ] Benchmark performance
+    - [ ] Test memory limits
+    - [ ] Verify GIF output quality

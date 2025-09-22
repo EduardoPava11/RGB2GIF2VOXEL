@@ -1,0 +1,317 @@
+# RGB2GIF2VOXEL Architecture v2 Configuration
+# Lean, testable, ship-ready architecture with Swift↔Rust↔Zig
+
+version: "2.0"
+project: RGB2GIF2VOXEL
+description: "Three-language pipeline for camera→tensor→voxel with minimal FFI"
+
+# Architecture Overview
+architecture:
+  layers:
+    - name: "iOS (Swift)"
+      responsibility: "UI, Camera, Preview, Voxel Rendering"
+      components:
+        - name: "CaptureSvc"
+          module: "AVFoundation"
+          functions:
+            - "Select front TrueDepth camera"
+            - "Prefer 1:1 clean aperture"
+            - "Stride-aware CVPixelBuffer extraction"
+            - "Deterministic frame acceptance"
+
+        - name: "PipelineMgr"
+          module: "Core"
+          functions:
+            - "Bounded queue with backpressure"
+            - "Batch frames for FFI (8-16)"
+            - "Emit metrics and telemetry"
+
+        - name: "Preview"
+          module: "Metal/SceneKit"
+          functions:
+            - "Real-time voxel preview"
+            - "MDLVoxelArray export"
+            - "USDZ generation"
+
+    - name: "Rust"
+      responsibility: "Image Processing, Quantization, GIF Encoding"
+      components:
+        - name: "FrameOps"
+          functions:
+            - "SIMD resize operations"
+            - "NeuQuant/K-means quantization"
+            - "Zero-copy processing"
+
+        - name: "GIF89aWriter"
+          functions:
+            - "Local palette per frame"
+            - "LZW compression"
+            - "Deterministic encoding"
+
+        - name: "Metrics"
+          functions:
+            - "Processing latency tracking"
+            - "Memory usage monitoring"
+
+    - name: "Zig"
+      responsibility: "File I/O, Validation, Compression"
+      components:
+        - name: "YXV I/O"
+          functions:
+            - "Container format read/write"
+            - "Chunk validation"
+            - "LZFSE/LZ4 compression"
+
+        - name: "QOI Cache"
+          functions:
+            - "20-50x faster than PNG"
+            - "Frame caching for preview"
+
+# FFI Boundaries (Minimal Surface Area)
+ffi:
+  swift_rust:
+    header: "rust_ffi.h"
+    functions:
+      - name: "yx_proc_batch_rgba8"
+        signature: |
+          int yx_proc_batch_rgba8(
+            const uint8_t* const* frames, int n,
+            int width, int height, int target,
+            int palette, uint8_t* out_indices, uint32_t* out_palettes
+          )
+        description: "Process batch of frames → indices + palettes"
+
+      - name: "yx_gif_encode"
+        signature: |
+          int yx_gif_encode(
+            const uint8_t* indices, const uint32_t* palettes,
+            int n, int side, int delay_cs, uint8_t* out, size_t* out_len
+          )
+        description: "Encode GIF from quantized data"
+
+  swift_zig:
+    header: "zig_ffi.h"
+    functions:
+      - name: "yxv_open_writer"
+        signature: "void* yxv_open_writer(const char* path)"
+        description: "Open YXV file for writing"
+
+      - name: "yxv_write_tensor"
+        signature: "int yxv_write_tensor(void* w, const struct YXVHeader*, const void* frames, size_t len)"
+        description: "Write tensor data with compression"
+
+      - name: "yxv_validate"
+        signature: "int yxv_validate(const char* path)"
+        description: "Validate YXV file integrity"
+
+# Data Contracts
+data_contracts:
+  pixel_input:
+    format: "RGBA8 or BGRA8"
+    layout: "Tightly packed or stride-aware"
+    size_calculation: "width * height * 4 or custom bytesPerRow"
+
+  quantized_output:
+    indices:
+      format: "uint8[]"
+      layout: "Z-major (frame0, frame1, ...frameN)"
+      size: "n * side * side"
+
+    palette:
+      format: "uint32[]"
+      layout: "RGB packed as 0x00RRGGBB"
+      size: "n * 256"
+
+  gif_format:
+    version: "GIF89a"
+    features:
+      - "Local color tables per frame"
+      - "Infinite loop"
+      - "Configurable delay"
+
+  yxv_container:
+    header:
+      - "magic: 'YXV\\0'"
+      - "version: u32"
+      - "dimensions: (width, height, depth)"
+      - "compression: enum {none, lz4, lzfse}"
+    chunks:
+      - "type: enum {palette, frame, metadata}"
+      - "offset: u64"
+      - "compressed_size: u32"
+      - "uncompressed_size: u32"
+      - "checksum: u32"
+
+# Build Configuration
+build:
+  rust:
+    target: "aarch64-apple-ios"
+    profile: "release"
+    optimizations:
+      - "lto = 'fat'"
+      - "codegen-units = 1"
+      - "opt-level = 3"
+
+  zig:
+    target: "aarch64-ios"
+    optimize: "ReleaseFast"
+
+  swift:
+    deployment_target: "17.0"
+    swift_version: "5.0"
+    optimization: "-O"
+
+# Performance Targets
+performance:
+  capture:
+    fps_target: 30
+    frame_budget_ms: 33
+
+  processing:
+    resize_ms: 2
+    quantize_ms: 3
+    total_ms: 10
+
+  memory:
+    max_buffer_count: 3
+    max_memory_mb: 50
+
+  thermal:
+    adaptation_thresholds:
+      nominal: 1.0
+      fair: 0.9
+      serious: 0.75
+      critical: 0.5
+
+# Test Requirements
+tests:
+  unit_tests:
+    - name: "Stride Compaction"
+      validates: "CVPixelBuffer bytesPerRow handling"
+
+    - name: "Clean Aperture"
+      validates: "1:1 format selection or center crop"
+
+    - name: "FFI Batch Integrity"
+      validates: "Z-major ordering, palette bounds"
+
+    - name: "YUV Conversion"
+      validates: "vImage color space correctness"
+
+    - name: "YXV Validation"
+      validates: "File format integrity, checksums"
+
+    - name: "Thermal Adaptation"
+      validates: "Graceful degradation under pressure"
+
+  integration_tests:
+    - name: "End-to-End Pipeline"
+      validates: "Camera → Tensor → Export"
+
+    - name: "Memory Stability"
+      validates: "No leaks after 1000 frames"
+
+    - name: "Performance Benchmarks"
+      validates: "Meets frame budget targets"
+
+# Migration Sprints
+sprints:
+  - id: "A"
+    name: "Stabilize & Shrink FFI"
+    duration: "1 week"
+    goals:
+      - "Implement minimal FFI functions"
+      - "Delete granular calls"
+      - "Add frame batching"
+      - "Test bytesPerRow handling"
+
+  - id: "B"
+    name: "Zig File Layer"
+    duration: "1 week"
+    goals:
+      - "Implement YXV reader/writer"
+      - "Add validation functions"
+      - "Wire Compression.framework"
+      - "Add QOI caching"
+
+  - id: "C"
+    name: "YUV Fast Path"
+    duration: "1 week"
+    goals:
+      - "Switch to 420f capture"
+      - "Add vImage conversion"
+      - "Compare latency/energy"
+
+  - id: "D"
+    name: "Voxel Polish"
+    duration: "1 week"
+    goals:
+      - "Finalize SceneKit/Metal"
+      - "MDLVoxelArray export"
+      - "A/B performance tests"
+
+# MCP Integration Points
+mcp:
+  servers:
+    - name: "build-monitor"
+      type: "filesystem"
+      watches:
+        - "rust-core/src/**/*.rs"
+        - "zig-yxv/src/**/*.zig"
+        - "RGB2GIF2VOXEL/**/*.swift"
+
+    - name: "test-runner"
+      type: "process"
+      commands:
+        - "cargo test"
+        - "zig test"
+        - "xcodebuild test"
+
+    - name: "performance-tracker"
+      type: "metrics"
+      tracks:
+        - "frame_processing_ms"
+        - "memory_usage_mb"
+        - "thermal_state"
+        - "dropped_frames"
+
+# Contract Tests (Swift Testing)
+contract_tests:
+  - test: "testStrideCompaction"
+    validates: "Padded CVPixelBuffer → tight packed data"
+
+  - test: "testCleanApertureSelection"
+    validates: "Native 1:1 preferred over crop"
+
+  - test: "testFFIBatchProcessing"
+    validates: "8 frames in → 8 quantized out"
+
+  - test: "testYUVColorSpace"
+    validates: "BT.601/709 conversion accuracy"
+
+  - test: "testYXVRoundTrip"
+    validates: "Write → Read → Validate cycle"
+
+  - test: "testThermalThrottling"
+    validates: "Quality reduction at thermal limits"
+
+# Monitoring & Telemetry
+telemetry:
+  metrics:
+    - "capture_fps"
+    - "processing_latency_p50"
+    - "processing_latency_p95"
+    - "memory_peak_mb"
+    - "thermal_events"
+    - "dropped_frame_count"
+
+  logging:
+    levels:
+      production: "WARNING"
+      debug: "DEBUG"
+
+    categories:
+      - "Camera"
+      - "Processing"
+      - "FFI"
+      - "Export"

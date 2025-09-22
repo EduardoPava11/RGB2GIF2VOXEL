@@ -1,0 +1,98 @@
+// YinVoxel FlatBuffers Schema
+// Version 1.0 - Indexed color support
+
+namespace YinVoxel;
+
+// Compression types
+enum CompressionType : byte {
+  NONE = 0,
+  LZ4 = 1,
+  LZFSE = 2,
+  ZSTD = 3
+}
+
+// View hints for rendering
+enum ViewType : byte {
+  ISOMETRIC = 0,
+  ORTHOGRAPHIC_FRONT = 1,
+  ORTHOGRAPHIC_TOP = 2,
+  ORTHOGRAPHIC_SIDE = 3,
+  PERSPECTIVE = 4,
+  ANIMATED = 5
+}
+
+// Chunk types for streaming
+enum ChunkType : byte {
+  PALETTE = 0,
+  FRAME = 1,
+  METADATA = 2,
+  THUMBNAIL = 3
+}
+
+// Color mode
+enum ColorMode : byte {
+  INDEXED = 0,  // 1 byte per voxel (palette index)
+  RGB24 = 1,    // 3 bytes per voxel (future)
+  RGBA32 = 2    // 4 bytes per voxel (future)
+}
+
+// Palette entry
+struct Color {
+  r: ubyte;
+  g: ubyte;
+  b: ubyte;
+}
+
+// View hint with transform matrix
+struct ViewHint {
+  type: ViewType;
+  transform: [float:16];  // 4x4 column-major matrix
+}
+
+// Chunk record (fixed size for streaming)
+struct ChunkRecord {
+  type: ChunkType;
+  offset: uint64;
+  compressed_size: uint32;
+  uncompressed_size: uint32;
+  checksum: uint32;  // CRC32
+}
+
+// Main header table
+table VoxelHeader {
+  // Format version
+  version: uint32 = 1;
+
+  // Dimensions [width, height, depth]
+  dimensions: [uint16] (required);
+
+  // Color information
+  color_mode: ColorMode = INDEXED;
+  palette_size: uint16 = 256;
+
+  // Compression
+  compression: CompressionType = LZFSE;
+
+  // Chunk table
+  chunk_count: uint32;
+  chunk_table_offset: uint64;
+
+  // View hints for optimal rendering
+  view_hints: [ViewHint];
+
+  // Metadata
+  creator: string;
+  creation_timestamp: uint64;  // Unix timestamp
+  frame_rate: uint16 = 30;     // For animated mode
+
+  // Optional metadata key-value pairs
+  metadata: [KeyValue];
+}
+
+// Key-value pair for extensible metadata
+table KeyValue {
+  key: string (required);
+  value: string;
+}
+
+root_type VoxelHeader;

@@ -1,0 +1,656 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project RGB2GIF2VOXEL.xcodeproj -scheme RGB2GIF2VOXEL -sdk iphoneos -configuration Debug -derivedDataPath build CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = 
+    CODE_SIGNING_ALLOWED = NO
+    CODE_SIGNING_REQUIRED = NO
+    SDKROOT = iphoneos26.0
+
+2025-09-21 15:59:41.294 xcodebuild[45688:148480] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+{ platform:macOS, arch:arm64, id:00006034-000470D20144001C, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00006034-000470D20144001C, name:My Mac }
+{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+{ platform:macOS, name:Any Mac }
+{ platform:iOS Simulator, arch:arm64, id:F9EA05C5-B8C3-4A97-897E-542809341441, OS:26.0, name:iPad (A16) }
+{ platform:iOS Simulator, arch:arm64, id:76CED61B-F4CD-4078-A4AC-769BBED7F694, OS:26.0, name:iPad Air 11-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:F29E72C7-203A-4FB8-8180-B8BAA6D7853F, OS:26.0, name:iPad Air 13-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:94B3C5CF-13A8-40E9-9898-11CE417E4932, OS:26.0, name:iPad Pro 11-inch (M4) }
+{ platform:iOS Simulator, arch:arm64, id:D949B90D-0519-4F91-A895-B6176BF48AC1, OS:26.0, name:iPad Pro 13-inch (M4) }
+{ platform:iOS Simulator, arch:arm64, id:1FD30AE1-EA13-41D3-906A-49DBAE5E56B4, OS:26.0, name:iPad mini (A17 Pro) }
+{ platform:iOS Simulator, arch:arm64, id:9C25D4AB-B683-4867-8F18-98DA64612F70, OS:26.0, name:iPhone 16e }
+{ platform:iOS Simulator, arch:arm64, id:25DC7AD2-98DF-476B-856F-1249BF9DB915, OS:26.0, name:iPhone 17 }
+{ platform:iOS Simulator, arch:arm64, id:40AF5937-BB2D-4759-A6F2-D43B640F17A5, OS:26.0, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:arm64, id:42551329-3F90-4D0F-B41F-CC57EE7811C2, OS:26.0, name:iPhone 17 Pro Max }
+{ platform:iOS Simulator, arch:arm64, id:A03C2A36-C145-48E3-90CC-6CC4759D5CB9, OS:26.0, name:iPhone Air }
+{ platform:iOS, arch:arm64, id:00008150-00113DCA0280401C, name:iPhone }
+note: Using codesigning identity override: 
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'RGB2GIF2VOXEL' in project 'RGB2GIF2VOXEL' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: cec601c5e470e26a1a7f1022f6ec3a47
+Build description path: /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/XCBuildData/cec601c5e470e26a1a7f1022f6ec3a47.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk /Users/daniel/Documents/RGB2GIF2VOXEL/build/SDKStatCaches.noindex/iphoneos26.0-23A339-81ce72e5b06c9602b9d30b56f2eed08a.sdkstatcache
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk -o /Users/daniel/Documents/RGB2GIF2VOXEL/build/SDKStatCaches.noindex/iphoneos26.0-23A339-81ce72e5b06c9602b9d30b56f2eed08a.sdkstatcache
+Base directory status changed. Regenerating...
+
+ProcessXCFramework /Users/daniel/Documents/RGB2GIF2VOXEL/ThirdParty/RustMinimal.xcframework /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/librust_minimal.a ios
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL.xcodeproj
+    builtin-process-xcframework --xcframework /Users/daniel/Documents/RGB2GIF2VOXEL/ThirdParty/RustMinimal.xcframework --platform ios --target-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos
+
+ProcessXCFramework /Users/daniel/Documents/RGB2GIF2VOXEL/ThirdParty/RustCore.xcframework /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/libyingif_processor.a ios
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL.xcodeproj
+    builtin-process-xcframework --xcframework /Users/daniel/Documents/RGB2GIF2VOXEL/ThirdParty/RustCore.xcframework --platform ios --target-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos
+
+WriteAuxiliaryFile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-project-headers.hmap (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    write-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-project-headers.hmap
+
+WriteAuxiliaryFile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/empty-RGB2GIF2VOXEL.plist (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    write-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/empty-RGB2GIF2VOXEL.plist
+
+WriteAuxiliaryFile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.SwiftFileList (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    write-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.SwiftFileList
+
+WriteAuxiliaryFile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.LinkFileList (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    write-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.LinkFileList
+
+WriteAuxiliaryFile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL-OutputFileMap.json (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    write-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.SwiftConstValuesFileList (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    write-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.SwiftConstValuesFileList
+
+Ld /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app/__preview.dylib normal (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk -O0 -L/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos -L/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Frameworks -F/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos -install_name @rpath/RGB2GIF2VOXEL.debug.dylib -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL_dependency_info.dat -o /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app/__preview.dylib
+ld: warning: reexported library with install name '/opt/homebrew/opt/llvm@12/lib/libunwind.1.dylib' found at '/opt/homebrew/Cellar/llvm@12/12.0.1_1/lib/libunwind.1.0.dylib' couldn't be matched with any parent library and will be linked directly
+
+GenerateAssetSymbols /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Assets.xcassets (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Assets.xcassets --compile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/assetcatalog_dependencies --output-partial-info-plist /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/assetcatalog_generated_info.plist --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 26.0 --platform iphoneos --bundle-identifier YIN.RGB2GIF2VOXEL --generate-swift-asset-symbols /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CompileAssetCatalogVariant thinned /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Assets.xcassets (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Assets.xcassets --compile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 26.0 --platform iphoneos
+/* com.apple.actool.compilation-results */
+/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/assetcatalog_generated_info.plist_thinned
+
+
+ProcessInfoPlistFile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app/Info.plist /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/empty-RGB2GIF2VOXEL.plist (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    builtin-infoPlistUtility /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/empty-RGB2GIF2VOXEL.plist -producttype com.apple.product-type.application -genpkginfo /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/assetcatalog_generated_info.plist -requiredArchitecture arm64 -o /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app/Info.plist
+
+SwiftDriver RGB2GIF2VOXEL normal arm64 com.apple.xcode.tools.swift.compiler (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name RGB2GIF2VOXEL -Onone -enforce-exclusivity\=checked @/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk -target arm64-apple-ios26.0 -g -module-cache-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos -F /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos -emit-localized-strings -emit-localized-strings-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64 -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/daniel/Documents/RGB2GIF2VOXEL/build/SDKStatCaches.noindex/iphoneos26.0-23A339-81ce72e5b06c9602b9d30b56f2eed08a.sdkstatcache -output-file-map /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/ModuleCache.noindex -sdk-module-cache-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL_const_extract_protocols.json -Xcc -iquote -Xcc /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-generated-files.hmap -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-own-target-headers.hmap -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-all-target-headers.hmap -Xcc -iquote -Xcc /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-project-headers.hmap -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources-normal/arm64 -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/arm64 -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL-Swift.h -working-directory /Users/daniel/Documents/RGB2GIF2VOXEL -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ CubeCameraManager.swift,\ CubeCameraManagerOptimized.swift,\ CubeCameraManagerOptimizedExtensions.swift,\ CubeClipController.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeClipController.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:142:32: warning: 'videoOrientation' was deprecated in iOS 17.0: Use -videoRotationAngle instead
+                    connection.videoOrientation = .portrait
+                               ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:95:18: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            self.session.beginConfiguration()
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:96:26: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            defer { self.session.commitConfiguration() }
+                         ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:99:37: warning: call to main actor-isolated instance method 'discoverFrontCamera()' in a synchronous nonisolated context
+            guard let camera = self.discoverFrontCamera() else {
+                                    ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:154:18: note: calls to instance method 'discoverFrontCamera()' from outside of its actor context are implicitly asynchronous
+    private func discoverFrontCamera() -> AVCaptureDevice? {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:104:18: warning: main actor-isolated property 'frontCamera' can not be mutated from a Sendable closure
+            self.frontCamera = camera
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:62:17: note: mutation of this property is only permitted within the actor
+    private var frontCamera: AVCaptureDevice?
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:109:25: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+                if self.session.canAddInput(input) {
+                        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:110:26: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+                    self.session.addInput(input)
+                         ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:121:51: warning: call to main actor-isolated instance method 'bestSquareOrMaxFormat(for:)' in a synchronous nonisolated context
+            guard let (format, formatInfo) = self.bestSquareOrMaxFormat(for: camera) else {
+                                                  ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:174:18: note: calls to instance method 'bestSquareOrMaxFormat(for:)' from outside of its actor context are implicitly asynchronous
+    private func bestSquareOrMaxFormat(for device: AVCaptureDevice) -> (AVCaptureDevice.Format, CameraFormatInfo)? {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:128:26: warning: call to main actor-isolated instance method 'configureFormat(_:on:info:)' in a synchronous nonisolated context
+                try self.configureFormat(format, on: camera, info: formatInfo)
+                         ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:233:18: note: calls to instance method 'configureFormat(_:on:info:)' from outside of its actor context are implicitly asynchronous
+    private func configureFormat(_ format: AVCaptureDevice.Format, on device: AVCaptureDevice, info: CameraFormatInfo) throws {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:129:22: warning: main actor-isolated property 'session' can not be mutated from a Sendable closure
+                self.session.sessionPreset = .inputPriority  // Required when setting activeFormat
+                     ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: mutation of this property is only permitted within the actor
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:135:31: warning: call to main actor-isolated instance method 'configureBGRAOutput()' in a synchronous nonisolated context
+            let output = self.configureBGRAOutput()
+                              ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:264:18: note: calls to instance method 'configureBGRAOutput()' from outside of its actor context are implicitly asynchronous
+    private func configureBGRAOutput() -> AVCaptureVideoDataOutput {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:136:21: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            if self.session.canAddOutput(output) {
+                    ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:137:22: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+                self.session.addOutput(output)
+                     ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:138:22: warning: main actor-isolated property 'videoOutput' can not be mutated from a Sendable closure
+                self.videoOutput = output
+                     ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:63:17: note: mutation of this property is only permitted within the actor
+    private var videoOutput: AVCaptureVideoDataOutput?
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:367:19: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            self?.session.startRunning()
+                  ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:373:19: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            self?.session.stopRunning()
+                  ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:57:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:392:17: warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode
+                self?.updateCaptureProgress()
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift:513:38: warning: main actor-isolated initializer 'init(index:width:height:indices:palette:)' cannot be called from outside of the actor; this is an error in the Swift 6 language mode
+                let quantizedFrame = QuantizedFrame(
+                                     ^~~~~~~~~~~~~~~
+                                     await 
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:160:32: warning: 'videoOrientation' was deprecated in iOS 17.0: Use -videoRotationAngle instead
+                    connection.videoOrientation = .portrait
+                               ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:111:18: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            self.session.beginConfiguration()
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:26:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:112:26: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            defer { self.session.commitConfiguration() }
+                         ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:26:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:115:37: warning: call to main actor-isolated instance method 'discoverFrontCamera()' in a synchronous nonisolated context
+            guard let camera = self.discoverFrontCamera() else {
+                                    ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:184:18: note: calls to instance method 'discoverFrontCamera()' from outside of its actor context are implicitly asynchronous
+    private func discoverFrontCamera() -> AVCaptureDevice? {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:120:18: warning: main actor-isolated property 'frontCamera' can not be mutated from a Sendable closure
+            self.frontCamera = camera
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:53:17: note: mutation of this property is only permitted within the actor
+    private var frontCamera: AVCaptureDevice?
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:125:25: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+                if self.session.canAddInput(input) {
+                        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:26:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:126:26: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+                    self.session.addInput(input)
+                         ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:26:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:134:51: warning: call to main actor-isolated instance method 'bestSquareOrMaxFormat(for:)' in a synchronous nonisolated context
+            guard let (format, formatInfo) = self.bestSquareOrMaxFormat(for: camera) else {
+                                                  ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:193:18: note: calls to instance method 'bestSquareOrMaxFormat(for:)' from outside of its actor context are implicitly asynchronous
+    private func bestSquareOrMaxFormat(for device: AVCaptureDevice) -> (AVCaptureDevice.Format, CameraFormatInfo)? {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:140:26: warning: call to main actor-isolated instance method 'configureFormat(_:on:info:)' in a synchronous nonisolated context
+                try self.configureFormat(format, on: camera, info: formatInfo)
+                         ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:252:18: note: calls to instance method 'configureFormat(_:on:info:)' from outside of its actor context are implicitly asynchronous
+    private func configureFormat(_ format: AVCaptureDevice.Format,
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:141:22: warning: main actor-isolated property 'session' can not be mutated from a Sendable closure
+                self.session.sessionPreset = .inputPriority
+                     ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:26:9: note: mutation of this property is only permitted within the actor
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:148:25: warning: main actor-isolated property 'captureMode' can not be referenced from a Sendable closure
+            switch self.captureMode {
+                        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:47:16: note: property declared here
+    public var captureMode: CaptureMode = .bgra
+               ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:150:31: warning: call to main actor-isolated instance method 'configureBGRAOutput()' in a synchronous nonisolated context
+                output = self.configureBGRAOutput()
+                              ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:283:18: note: calls to instance method 'configureBGRAOutput()' from outside of its actor context are implicitly asynchronous
+    private func configureBGRAOutput() -> AVCaptureVideoDataOutput {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:152:31: warning: call to main actor-isolated instance method 'configureYUV420fOutput()' in a synchronous nonisolated context
+                output = self.configureYUV420fOutput()
+                              ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:301:18: note: calls to instance method 'configureYUV420fOutput()' from outside of its actor context are implicitly asynchronous
+    private func configureYUV420fOutput() -> AVCaptureVideoDataOutput {
+                 ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:155:21: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+            if self.session.canAddOutput(output) {
+                    ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:26:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:156:22: warning: main actor-isolated property 'session' can not be referenced from a Sendable closure
+                self.session.addOutput(output)
+                     ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:26:9: note: property declared here
+    let session = AVCaptureSession()
+        ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:157:22: warning: main actor-isolated property 'videoOutput' can not be mutated from a Sendable closure
+                self.videoOutput = output
+                     ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:54:17: note: mutation of this property is only permitted within the actor
+    private var videoOutput: AVCaptureVideoDataOutput?
+                ^
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:18:13: error: 'sessionQueue' is inaccessible due to 'private' protection level
+            sessionQueue.async { [weak self] in
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:27:17: note: 'sessionQueue' declared here
+    private let sessionQueue = DispatchQueue(label: "com.yingif.cube.session")
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:28:13: error: 'sessionQueue' is inaccessible due to 'private' protection level
+            sessionQueue.async { [weak self] in
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:27:17: note: 'sessionQueue' declared here
+    private let sessionQueue = DispatchQueue(label: "com.yingif.cube.session")
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:38:13: error: 'sessionQueue' is inaccessible due to 'private' protection level
+            sessionQueue.async { [weak self] in
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:27:17: note: 'sessionQueue' declared here
+    private let sessionQueue = DispatchQueue(label: "com.yingif.cube.session")
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:61:15: error: type 'CubeCameraManagerOptimized.CaptureMode' has no member 'speed'
+        case .speed:
+             ~^~~~~
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:64:15: error: type 'CubeCameraManagerOptimized.CaptureMode' has no member 'quality'
+        case .quality:
+             ~^~~~~~~
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:67:15: error: type 'CubeCameraManagerOptimized.CaptureMode' has no member 'hdr'
+        case .hdr:
+             ~^~~
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:62:13: error: 'pyramidLevel' is inaccessible due to 'private' protection level
+            pyramidLevel = CubePolicy.minLevel  // 64x64x64
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:36:17: note: 'pyramidLevel' declared here
+    private var pyramidLevel: Int = CubePolicy.defaultLevel
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:62:39: error: type 'CubePolicy' has no member 'minLevel'
+            pyramidLevel = CubePolicy.minLevel  // 64x64x64
+                           ~~~~~~~~~~ ^~~~~~~~
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:63:13: error: 'paletteSize' is inaccessible due to 'private' protection level
+            paletteSize = 128
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:37:17: note: 'paletteSize' declared here
+    private var paletteSize: Int = 256
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:65:13: error: 'pyramidLevel' is inaccessible due to 'private' protection level
+            pyramidLevel = CubePolicy.defaultLevel  // 256x256x256
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:36:17: note: 'pyramidLevel' declared here
+    private var pyramidLevel: Int = CubePolicy.defaultLevel
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:66:13: error: 'paletteSize' is inaccessible due to 'private' protection level
+            paletteSize = 256
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:37:17: note: 'paletteSize' declared here
+    private var paletteSize: Int = 256
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:68:13: error: 'pyramidLevel' is inaccessible due to 'private' protection level
+            pyramidLevel = CubePolicy.defaultLevel
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:36:17: note: 'pyramidLevel' declared here
+    private var pyramidLevel: Int = CubePolicy.defaultLevel
+                ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift:69:13: error: 'paletteSize' is inaccessible due to 'private' protection level
+            paletteSize = 256
+            ^
+/Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift:37:17: note: 'paletteSize' declared here
+    private var paletteSize: Int = 256
+                ^
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeClipController.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/CanonicalRustFFI.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/GIF89aEncoderStub.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/RustFFI.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/UIUXArchitectureSummary.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/YinGifProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/BGRACameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CaptureToGIFPipeline.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/Cube256Config.swift -primary-file /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift -primary-file /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift -primary-file /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift -primary-file /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeClipController.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubePolicy.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeTensor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/FixedCameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/OptimizedCameraProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Debug/MockRustProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Debug/PipelineValidator.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Extensions/Data+Compression.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Extensions/DataExtensions.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/FileFormats/YXVIO_Simple.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/FileFormats/YXVTypes.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/BurnBridge.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/CameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/DeviceFormat.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/Downsampler.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/WebViewBridge.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/WKWebViewController.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Logging/PerformanceLogger.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CaptureConfiguration.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CaptureError.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CubeTensorData.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/CaptureCoordinator.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/CubeProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/FrameSaver.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/SafeCubeProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/VImageDownsampler.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Testing/MinimalPerformanceTest.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Testing/PerformanceTestRunner.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/CameraPreview.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/ErrorHandlingView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/GalleryView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/MainCaptureView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/PermissionCheckView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/SettingsView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/CameraPreviewRepresentable.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/CubeCameraView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/DebugOverlayView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/SimpleCameraView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/CubeTensorVoxelExtensions.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/VoxelRenderEngine.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/VoxelViewerView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/ContentView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/RGB2GIF2VOXELApp.swift /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols.swift -supplementary-output-file-map /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/supplementaryOutputs-3 -emit-localized-strings -emit-localized-strings-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64 -target arm64-apple-ios26.0 -module-can-import-version DeveloperToolsSupport 23.0.4 23.0.4 -module-can-import-version SwiftUI 7.0.84.1 7.0.84 -module-can-import-version UIKit 9088.1.113 9088.1.113 -disable-cross-import-overlay-search -swift-module-cross-import Darwin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/Darwin.swiftcrossimport/xlocale.swiftoverlay -swift-module-cross-import SceneKit /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/SceneKit.framework/Modules/SceneKit.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import WebKit /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Cryptexes/OS/System/Library/Frameworks/WebKit.framework/Modules/WebKit.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import WebKit /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WebKit.framework/Modules/WebKit.swiftcrossimport/SwiftUI.swiftoverlay -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk -I /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos -F /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -module-cache-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -swift-version 5 -enforce-exclusivity\=checked -Onone -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/RGB2GIF2VOXEL_const_extract_protocols.json -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -default-isolation\=MainActor -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/daniel/Documents/RGB2GIF2VOXEL/build/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/daniel/Documents/RGB2GIF2VOXEL -enable-anonymous-context-mangled-names -file-compilation-dir /Users/daniel/Documents/RGB2GIF2VOXEL -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/daniel/Documents/RGB2GIF2VOXEL/build/SDKStatCaches.noindex/iphoneos26.0-23A339-81ce72e5b06c9602b9d30b56f2eed08a.sdkstatcache -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-generated-files.hmap -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-own-target-headers.hmap -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-all-target-headers.hmap -Xcc -iquote -Xcc /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL-project-headers.hmap -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/include -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources-normal/arm64 -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/arm64 -Xcc -I/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name RGB2GIF2VOXEL -frontend-parseable-output -disable-clang-spi -target-sdk-version 26.0 -target-sdk-name iphoneos26.0 -clang-target arm64-apple-ios26.0 -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeCameraManager.o -o /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeCameraManagerOptimized.o -o /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeCameraManagerOptimizedExtensions.o -o /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeClipController.o -index-unit-output-path /RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeCameraManager.o -index-unit-output-path /RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeCameraManagerOptimized.o -index-unit-output-path /RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeCameraManagerOptimizedExtensions.o -index-unit-output-path /RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/Objects-normal/arm64/CubeClipController.o -index-store-path /Users/daniel/Documents/RGB2GIF2VOXEL/build/Index.noindex/DataStore -index-system-modules
+SwiftCompile normal arm64 Compiling\ MockRustProcessor.swift,\ PipelineValidator.swift,\ Data+Compression.swift,\ DataExtensions.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Debug/MockRustProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Debug/PipelineValidator.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Extensions/Data+Compression.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Extensions/DataExtensions.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Debug/MockRustProcessor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Debug/PipelineValidator.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Extensions/Data+Compression.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Extensions/DataExtensions.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ CanonicalRustFFI.swift,\ GIF89aEncoderStub.swift,\ RustFFI.swift,\ UIUXArchitectureSummary.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/CanonicalRustFFI.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/GIF89aEncoderStub.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/RustFFI.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/UIUXArchitectureSummary.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/CanonicalRustFFI.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/GIF89aEncoderStub.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/RustFFI.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/UIUXArchitectureSummary.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ ErrorHandlingView.swift,\ GalleryView.swift,\ MainCaptureView.swift,\ PermissionCheckView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/ErrorHandlingView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/GalleryView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/MainCaptureView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/PermissionCheckView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/ErrorHandlingView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/GalleryView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/MainCaptureView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/PermissionCheckView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ VImageDownsampler.swift,\ MinimalPerformanceTest.swift,\ PerformanceTestRunner.swift,\ CameraPreview.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/VImageDownsampler.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Testing/MinimalPerformanceTest.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Testing/PerformanceTestRunner.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/CameraPreview.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/VImageDownsampler.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Testing/MinimalPerformanceTest.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Testing/PerformanceTestRunner.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/CameraPreview.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ DeviceFormat.swift,\ Downsampler.swift,\ WebViewBridge.swift,\ WKWebViewController.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/DeviceFormat.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/Downsampler.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/WebViewBridge.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/WKWebViewController.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/DeviceFormat.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/Downsampler.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/WebViewBridge.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/WKWebViewController.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ ContentView.swift,\ RGB2GIF2VOXELApp.swift,\ GeneratedAssetSymbols.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/ContentView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/RGB2GIF2VOXELApp.swift /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/ContentView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/RGB2GIF2VOXELApp.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ YXVIO_Simple.swift,\ YXVTypes.swift,\ BurnBridge.swift,\ CameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/FileFormats/YXVIO_Simple.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/FileFormats/YXVTypes.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/BurnBridge.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/CameraManager.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/FileFormats/YXVIO_Simple.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/FileFormats/YXVTypes.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/BurnBridge.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Legacy/CameraManager.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ CaptureCoordinator.swift,\ CubeProcessor.swift,\ FrameSaver.swift,\ SafeCubeProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/CaptureCoordinator.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/CubeProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/FrameSaver.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/SafeCubeProcessor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/CaptureCoordinator.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/CubeProcessor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/FrameSaver.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Pipeline/SafeCubeProcessor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ CubePolicy.swift,\ CubeTensor.swift,\ FixedCameraManager.swift,\ OptimizedCameraProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubePolicy.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeTensor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/FixedCameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/OptimizedCameraProcessor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubePolicy.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeTensor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/FixedCameraManager.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/OptimizedCameraProcessor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ PerformanceLogger.swift,\ CaptureConfiguration.swift,\ CaptureError.swift,\ CubeTensorData.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Logging/PerformanceLogger.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CaptureConfiguration.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CaptureError.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CubeTensorData.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Logging/PerformanceLogger.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CaptureConfiguration.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CaptureError.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Models/CubeTensorData.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ RGB2GIF2VOXEL (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+EmitSwiftModule normal arm64 (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ YinGifProcessor.swift,\ BGRACameraManager.swift,\ CaptureToGIFPipeline.swift,\ Cube256Config.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/YinGifProcessor.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/BGRACameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CaptureToGIFPipeline.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/Cube256Config.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Bridge/YinGifProcessor.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/BGRACameraManager.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CaptureToGIFPipeline.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/Cube256Config.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ SettingsView.swift,\ CameraPreviewRepresentable.swift,\ CubeCameraView.swift,\ DebugOverlayView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/SettingsView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/CameraPreviewRepresentable.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/CubeCameraView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/DebugOverlayView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/UI/SettingsView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/CameraPreviewRepresentable.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/CubeCameraView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/DebugOverlayView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 Compiling\ SimpleCameraView.swift,\ CubeTensorVoxelExtensions.swift,\ VoxelRenderEngine.swift,\ VoxelViewerView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/SimpleCameraView.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/CubeTensorVoxelExtensions.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/VoxelRenderEngine.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/VoxelViewerView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Views/SimpleCameraView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/CubeTensorVoxelExtensions.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/VoxelRenderEngine.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Voxel/VoxelViewerView.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+    cd /Users/daniel/Documents/RGB2GIF2VOXEL
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling ContentView.swift, RGB2GIF2VOXELApp.swift, GeneratedAssetSymbols.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+
+note: Removed stale file '/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/DerivedSources/Entitlements.plist'
+
+note: Removed stale file '/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL.app.xcent'
+
+note: Removed stale file '/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Intermediates.noindex/RGB2GIF2VOXEL.build/Debug-iphoneos/RGB2GIF2VOXEL.build/RGB2GIF2VOXEL.app.xcent.der'
+
+note: Removed stale file '/Users/daniel/Documents/RGB2GIF2VOXEL/build/Build/Products/Debug-iphoneos/RGB2GIF2VOXEL.app/embedded.mobileprovision'
+
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+	SwiftCompile normal arm64 Compiling\ CubeCameraManager.swift,\ CubeCameraManagerOptimized.swift,\ CubeCameraManagerOptimizedExtensions.swift,\ CubeClipController.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManager.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimized.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeCameraManagerOptimizedExtensions.swift /Users/daniel/Documents/RGB2GIF2VOXEL/RGB2GIF2VOXEL/Camera/CubeClipController.swift (in target 'RGB2GIF2VOXEL' from project 'RGB2GIF2VOXEL')
+	Building project RGB2GIF2VOXEL with scheme RGB2GIF2VOXEL and configuration Debug
+(3 failures)

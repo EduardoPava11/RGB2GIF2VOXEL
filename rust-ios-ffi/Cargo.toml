@@ -1,0 +1,31 @@
+[package]
+name = "yingif-ios-ffi"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "yingif"
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+# Image processing
+image = { version = "0.24", default-features = false, features = ["png"] }
+color_quant = "1.1"
+gif = "0.13"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging (optional, can be disabled for iOS)
+log = "0.4"
+
+[build-dependencies]
+cbindgen = "0.26"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true
+panic = "abort"

@@ -1,0 +1,50 @@
+namespace rgb2gif_processor {
+    [Throws=ProcessorError]
+    ProcessResult process_all_frames(
+        bytes frames_rgba,
+        u32 width,
+        u32 height,
+        u32 frame_count,
+        QuantizeOpts quantize_opts,
+        GifOpts gif_opts
+    );
+
+    u32 calculate_buffer_size(u32 width, u32 height, u32 frame_count);
+    boolean validate_buffer(bytes buffer, u32 expected_size);
+};
+
+[Error]
+enum ProcessorError {
+    "QuantizationError",
+    "EncodingError",
+    "InvalidInput",
+    "MemoryError",
+};
+
+dictionary QuantizeOpts {
+    u8 quality_min;
+    u8 quality_max;
+    i32 speed;
+    u16 palette_size;
+    f32 dithering_level;
+    boolean shared_palette;
+};
+
+dictionary GifOpts {
+    u16 width;
+    u16 height;
+    u16 frame_count;
+    u16 fps;
+    u16 loop_count;
+    boolean optimize;
+    boolean include_tensor;
+};
+
+dictionary ProcessResult {
+    bytes gif_data;
+    bytes? tensor_data;
+    u32 final_file_size;
+    f32 processing_time_ms;
+    u16 actual_frame_count;
+    u16 palette_size_used;
+};

@@ -1,0 +1,76 @@
+# Single-FFI Pipeline Configuration
+# Keeps Swift and Rust paths in sync
+
+pipeline:
+  name: "RGB2GIF2VOXEL Single-FFI"
+  version: "1.0.0"
+  description: "Dual-path GIF creation pipeline with Swift/Rust options"
+
+capture:
+  source_size: 1080  # Camera capture resolution
+  target_size: 256   # Target frame size after downsampling
+  frame_count: 256   # Total frames to capture
+  format: "RGBA8888" # Pixel format
+
+processing_paths:
+  swift:
+    name: "Swift Native"
+    enabled: true
+    features:
+      - "100% Native iOS"
+      - "vImage Acceleration"
+      - "ImageIO GIF Encoding"
+      - "Reliable & Stable"
+    estimated_time_ms: 2500
+
+  rust_ffi:
+    name: "Rust FFI"
+    enabled: true
+    features:
+      - "NeuQuant Color Quantization"
+      - "SIMD Optimized"
+      - "Custom GIF89a Encoder"
+      - "Optional Tensor Output"
+    estimated_time_ms: 1500
+
+quantization:
+  color_count: 256      # Max colors in palette
+  quality: 10.0        # NeuQuant quality (1-30)
+  dither: false        # Apply dithering
+  sample_factor: 10    # Pixel sampling rate
+
+gif_encoding:
+  delay_cs: 4          # Frame delay in centiseconds (4cs = 25fps)
+  loop_forever: true   # NETSCAPE2.0 extension for infinite loop
+  optimization_level: 2 # 0=none, 1=basic, 2=aggressive
+
+cbor_encoding:
+  enabled: true
+  persist_frames: true
+  storage_path: "cbor_frames"
+  fields:
+    - index
+    - width
+    - height
+    - format
+    - timestamp
+    - data
+
+memory_limits:
+  max_buffer_size_mb: 64  # 256 * 256 * 256 * 4 / 1024 / 1024
+  chunking_threshold_mb: 32
+  enable_chunking: false
+
+permissions:
+  camera:
+    key: "NSCameraUsageDescription"
+    value: "This app needs camera access to capture frames for GIF creation"
+  photos:
+    key: "NSPhotoLibraryAddUsageDescription"
+    value: "This app saves created GIFs to your photo library"
+
+performance_targets:
+  capture_fps: 30
+  processing_fps: 60
+  max_memory_mb: 128
+  target_file_size_kb: 5000

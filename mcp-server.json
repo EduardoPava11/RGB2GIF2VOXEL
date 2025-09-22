@@ -1,0 +1,121 @@
+{
+  "name": "rgb2gif2voxel-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for RGB2GIF2VOXEL build monitoring",
+  "servers": {
+    "build-monitor": {
+      "type": "filesystem",
+      "config": {
+        "root": "/Users/daniel/Documents/RGB2GIF2VOXEL",
+        "watch_patterns": [
+          "**/*.swift",
+          "**/*.rs",
+          "**/*.zig"
+        ],
+        "ignore_patterns": [
+          "**/target/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "events": {
+          "on_change": {
+            "swift": "xcodebuild -quiet -project RGB2GIF2VOXEL.xcodeproj -scheme RGB2GIF2VOXEL build",
+            "rust": "cd rust-core && cargo build --release --target aarch64-apple-ios",
+            "zig": "cd zig-yxv && zig build -Doptimize=ReleaseFast"
+          }
+        }
+      }
+    },
+    "test-runner": {
+      "type": "process",
+      "config": {
+        "commands": {
+          "test-all": "npm run test:all",
+          "test-swift": "xcodebuild test -scheme RGB2GIF2VOXEL -destination 'platform=iOS Simulator,name=iPhone 17 Pro'",
+          "test-rust": "cd rust-core && cargo test",
+          "test-zig": "cd zig-yxv && zig test",
+          "benchmark": "xcodebuild test -only-testing:RGB2GIF2VOXELTests/RealisticBenchmarks"
+        },
+        "auto_run": ["test-all"],
+        "on_failure": "notify"
+      }
+    },
+    "performance-tracker": {
+      "type": "metrics",
+      "config": {
+        "metrics": [
+          {
+            "name": "frame_processing_ms",
+            "type": "histogram",
+            "buckets": [1, 5, 10, 20, 50, 100]
+          },
+          {
+            "name": "memory_usage_mb",
+            "type": "gauge",
+            "threshold": 100
+          },
+          {
+            "name": "thermal_state",
+            "type": "enum",
+            "values": ["nominal", "fair", "serious", "critical"]
+          },
+          {
+            "name": "dropped_frames",
+            "type": "counter"
+          }
+        ],
+        "export": {
+          "format": "prometheus",
+          "endpoint": "http://localhost:9090/metrics"
+        }
+      }
+    },
+    "contract-validator": {
+      "type": "validation",
+      "config": {
+        "contracts": [
+          {
+            "name": "FFI ABI Stability",
+            "check": "nm -g rust-core/target/aarch64-apple-ios/release/librust_core.a | grep -E 'yx_proc_batch_rgba8|yx_gif_encode'",
+            "expect": "2 symbols"
+          },
+          {
+            "name": "Deployment Target",
+            "check": "grep IPHONEOS_DEPLOYMENT_TARGET RGB2GIF2VOXEL.xcodeproj/project.pbxproj | head -1",
+            "expect": "17.0"
+          },
+          {
+            "name": "No Duplicate Symbols",
+            "check": "grep -r 'class YinGifProcessor' RGB2GIF2VOXEL/ --include='*.swift' | wc -l",
+            "expect": "1"
+          }
+        ]
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "fix-duplicates",
+      "description": "Fix duplicate symbol conflicts",
+      "script": "Scripts/fix_duplicates.py"
+    },
+    {
+      "name": "validate-build",
+      "description": "Validate build configuration",
+      "script": "Scripts/validate_build.sh"
+    },
+    {
+      "name": "benchmark",
+      "description": "Run performance benchmarks",
+      "script": "Scripts/benchmark_pipeline.sh"
+    }
+  ],
+  "notifications": {
+    "enabled": true,
+    "channels": {
+      "build_failure": "console",
+      "test_failure": "console",
+      "performance_regression": "console"
+    }
+  }
+}

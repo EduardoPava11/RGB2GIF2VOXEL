@@ -6,13 +6,33 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		65E405442E80911F0001C80B /* RustCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E405422E80911F0001C80B /* RustCore.xcframework */; };
+		65E405462E80911F0001C80B /* RustMinimal.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E405432E80911F0001C80B /* RustMinimal.xcframework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		65C1EF622E7E7AF2008951EF /* RGB2GIF2VOXEL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RGB2GIF2VOXEL.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65E405422E80911F0001C80B /* RustCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = RustCore.xcframework; path = ThirdParty/RustCore.xcframework; sourceTree = "<group>"; };
+		65E405432E80911F0001C80B /* RustMinimal.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = RustMinimal.xcframework; path = ThirdParty/RustMinimal.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		65C1EF652E7E7AF2008951EF /* Exceptions for "RGB2GIF2VOXEL" folder in "RGB2GIF2VOXEL" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 65C1EF612E7E7AF2008951EF /* RGB2GIF2VOXEL */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		65C1EF642E7E7AF2008951EF /* RGB2GIF2VOXEL */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				65C1EF652E7E7AF2008951EF /* Exceptions for "RGB2GIF2VOXEL" folder in "RGB2GIF2VOXEL" target */,
+			);
 			path = RGB2GIF2VOXEL;
 			sourceTree = "<group>";
 		};
@@ -23,6 +43,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65E405442E80911F0001C80B /* RustCore.xcframework in Frameworks */,
+				65E405462E80911F0001C80B /* RustMinimal.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +55,7 @@
 			isa = PBXGroup;
 			children = (
 				65C1EF642E7E7AF2008951EF /* RGB2GIF2VOXEL */,
+				65E405412E80911F0001C80B /* Frameworks */,
 				65C1EF632E7E7AF2008951EF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +66,15 @@
 				65C1EF622E7E7AF2008951EF /* RGB2GIF2VOXEL.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		65E405412E80911F0001C80B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				65E405422E80911F0001C80B /* RustCore.xcframework */,
+				65E405432E80911F0001C80B /* RustMinimal.xcframework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -253,7 +285,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RGB2GIF2VOXEL/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -267,6 +300,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/RGB2GIF2VOXEL/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = YIN.RGB2GIF2VOXEL;
@@ -278,6 +315,8 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/RGB2GIF2VOXEL/Bridge/Generated";
+				SWIFT_OBJC_BRIDGING_HEADER = "RGB2GIF2VOXEL/RGB2GIF2VOXEL-Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -297,7 +336,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RGB2GIF2VOXEL/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -311,6 +351,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/RGB2GIF2VOXEL/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = YIN.RGB2GIF2VOXEL;
@@ -322,6 +366,8 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/RGB2GIF2VOXEL/Bridge/Generated";
+				SWIFT_OBJC_BRIDGING_HEADER = "RGB2GIF2VOXEL/RGB2GIF2VOXEL-Bridging-Header.h";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";

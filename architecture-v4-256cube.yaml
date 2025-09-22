@@ -1,0 +1,241 @@
+# RGB2GIF2VOXEL Architecture v4 - 256×256×256 Cube Pipeline
+# Maximum quality configuration for iPhone 17 Pro → GIF89a export
+
+version: "4.0"
+project: RGB2GIF2VOXEL_256
+target: "256×256×256 voxel cube"
+platform: "iPhone 17 Pro"
+
+# ============================================================================
+# CUBE SPECIFICATIONS
+# ============================================================================
+cube:
+  dimensions:
+    x: 256  # Width of each frame
+    y: 256  # Height of each frame
+    z: 256  # Number of frames (temporal dimension)
+
+  total_voxels: 16_777_216  # 256³
+
+  data_structure:
+    format: "Indexed color"
+    palette_size: 256  # Colors per frame
+    index_bits: 8      # 1 byte per voxel
+
+  memory_footprint:
+    indices: "16.7 MB"  # 256×256×256 bytes
+    palettes: "196 KB"  # 256 frames × 256 colors × 3 bytes
+    total: "~17 MB indexed"
+
+# ============================================================================
+# CAPTURE CONFIGURATION
+# ============================================================================
+capture:
+  camera:
+    device: "Front TrueDepth Camera"
+    sensor: "18MP square (4243×4243)"
+
+  resolution:
+    preset: "HD (1920×1080)"  # Memory-safe resolution
+    cropped: "1080×1080"      # Center square crop
+
+  frames:
+    count: 256
+    fps: 30
+    duration: "8.5 seconds"  # 256/30
+
+  memory_per_frame:
+    raw: "4.5 MB"  # 1080×1080×4 BGRA
+    total_capture: "1.15 GB"  # 256 frames
+
+# ============================================================================
+# PROCESSING PIPELINE
+# ============================================================================
+pipeline:
+  stage1_capture:
+    input: "CVPixelBuffer @ 1920×1080 BGRA"
+    operation: "Center crop to 1080×1080"
+    output: "1080×1080 BGRA buffer"
+
+  stage2_compact:
+    input: "CVPixelBuffer with potential stride padding"
+    operation: |
+      if (bytesPerRow != width * 4) {
+        compact row by row
+      }
+    output: "Tightly packed BGRA data"
+
+  stage3_downsample:
+    input: "1080×1080 BGRA"
+    algorithm: "Lanczos3 (high quality)"
+    ratio: "4.2:1"
+    output: "256×256 BGRA"
+
+  stage4_quantize:
+    input: "256×256 BGRA"
+    algorithm: "NeuQuant"
+    colors: 256
+    output: "256×256 indexed + palette"
+
+  stage5_collect:
+    input: "256 frames of 256×256 indexed"
+    operation: "Stack as Z-slices"
+    output: "256×256×256 tensor"
+
+# ============================================================================
+# GIF89a ENCODING
+# ============================================================================
+gif_encoding:
+  specification:
+    version: "89a"
+    width: 256
+    height: 256
+    frames: 256
+
+  color_management:
+    global_palette: false
+    local_palettes: true  # Per-frame palettes
+    colors_per_frame: 256
+
+  animation:
+    loop_count: 0  # Infinite loop
+    frame_delay: 40  # Milliseconds (25 fps)
+    disposal: "RestoreToBackground"
+
+  compression:
+    algorithm: "LZW"
+    optimization: "Frame differencing"
+
+  expected_size:
+    uncompressed: "16.7 MB"
+    compressed: "~2-5 MB"  # Depends on content
+
+# ============================================================================
+# VOXEL VISUALIZATION
+# ============================================================================
+voxel_rendering:
+  framework: "SceneKit"
+
+  geometry:
+    primitive: "SCNBox"
+    size: 0.01  # Small voxels for 256³
+
+  sampling:
+    strategy: "Sparse sampling for performance"
+    stride: 32  # Show every 32nd voxel
+    visible_voxels: "~8000"  # (256/32)³
+
+  interaction:
+    rotate: "RotationGesture"
+    zoom: "PinchGesture"
+    pan: "PanGesture"
+
+  export_formats:
+    - "GIF89a animation"
+    - "USDZ for AR Quick Look"
+    - "PLY point cloud"
+
+# ============================================================================
+# MEMORY MANAGEMENT
+# ============================================================================
+memory:
+  limits:
+    ios_app_budget: "2 GB typical"
+    safety_margin: "1.5 GB max usage"
+
+  allocation:
+    capture_buffer: "1.15 GB"  # 256 frames @ 1080×1080
+    processing_buffer: "17 MB"  # 256³ indexed
+    working_memory: "~100 MB"  # Intermediate operations
+
+  optimization:
+    strategy: "Process frames in batches"
+    batch_size: 32  # Process 32 frames at a time
+    release_policy: "Aggressive deallocation"
+
+# ============================================================================
+# RUST FFI
+# ============================================================================
+rust_ffi:
+  batch_processing:
+    function: "yx_proc_batch_bgra_256"
+    input: "Array of 256 BGRA frames @ 1080×1080"
+    output: "256×256×256 indexed tensor + palettes"
+
+  gif_encoding:
+    function: "yx_gif_encode_256"
+    input: "256³ indexed tensor + 256 palettes"
+    output: "GIF89a byte stream"
+
+  memory_safety:
+    ownership: "Rust owns processing buffers"
+    lifetime: "Scoped to function calls"
+    cleanup: "Automatic via RAII"
+
+# ============================================================================
+# PERFORMANCE TARGETS
+# ============================================================================
+performance:
+  capture_phase:
+    duration: "8.5 seconds"
+    frame_rate: "30 fps sustained"
+
+  processing_phase:
+    downsample: "< 1 second total"
+    quantization: "< 3 seconds total"
+    gif_encoding: "< 2 seconds"
+
+  total_pipeline:
+    target: "< 15 seconds end-to-end"
+
+# ============================================================================
+# USER EXPERIENCE
+# ============================================================================
+ui_flow:
+  1_launch:
+    - "Request camera permission"
+    - "Show live preview @ 1080×1080"
+
+  2_capture:
+    - "Tap to start 256 frame capture"
+    - "Show progress: 0/256...256/256"
+    - "8.5 second capture duration"
+
+  3_processing:
+    - "Show processing indicator"
+    - "Display progress percentage"
+
+  4_preview:
+    - "Show 3D voxel visualization"
+    - "Allow rotation/zoom"
+
+  5_export:
+    - "Export as GIF89a"
+    - "Share via system sheet"
+    - "Save to Photos"
+
+# ============================================================================
+# IMPLEMENTATION STATUS
+# ============================================================================
+implementation:
+  completed:
+    - "✅ Camera setup for 1080×1080"
+    - "✅ BGRA stride compaction"
+    - "✅ 256 frame collection"
+    - "✅ SwiftUI camera preview with AVCaptureVideoPreviewLayer"
+    - "✅ Permission handling (camera + photo library)"
+    - "✅ vImage-based downsampling (Lanczos3)"
+    - "✅ Rust FFI consolidated through RustProcessor wrapper"
+    - "✅ Memory-safe stride handling in OptimizedCameraProcessor"
+    - "✅ UI with capture progress, frame counter, settings"
+
+  in_progress:
+    - "🔄 Actual frame processing through Rust pipeline"
+    - "🔄 GIF89a encoding via yx_gif_encode"
+    - "🔄 256³ tensor building"
+
+  pending:
+    - "⏳ Voxel visualization in SceneKit"
+    - "⏳ Export to Photos library"
+    - "⏳ USDZ/PLY export"
+    - "⏳ Frame differencing optimization"

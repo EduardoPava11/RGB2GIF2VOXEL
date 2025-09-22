@@ -1,0 +1,4 @@
+module rgb2gif_processorFFI {
+    header "rgb2gif_processorFFI.h"
+    export *
+}

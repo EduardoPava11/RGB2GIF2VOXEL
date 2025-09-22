@@ -1,0 +1,105 @@
+# RGB2GIF2VOXEL Application Configuration
+# Main configuration file for app-wide settings
+
+app:
+  name: "RGB2GIF2VOXEL"
+  version: "1.0.0"
+  bundle_id: "com.voxel.RGB2GIF2VOXEL"
+  deployment_target: "iOS 17.0"
+
+# Feature flags
+features:
+  use_rust_ffi: true          # Use Rust for performance-critical operations
+  use_metal_acceleration: true # Use Metal for GPU acceleration
+  enable_diagnostics: true     # Show diagnostic HUD in camera view
+  enable_cbor_export: false    # Save CBOR files for debugging
+  enable_analytics: false      # Disabled for privacy
+
+# Performance settings
+performance:
+  max_memory_usage_mb: 512
+  frame_buffer_pool_size: 10
+  parallel_processing_queues: 4
+  enable_frame_dropping: true
+  target_fps: 30
+
+# Camera configuration
+camera:
+  capture_resolution:
+    width: 1920
+    height: 1080
+  output_resolution:
+    width: 256
+    height: 256
+  pixel_format: "BGRA"
+  video_stabilization: false
+  exposure_mode: "continuous_auto"
+  focus_mode: "continuous_auto"
+
+# Capture settings
+capture:
+  frames_per_capture: 256
+  max_capture_duration_seconds: 30
+  frame_interval_ms: 33  # ~30 FPS
+  enable_preview_during_capture: true
+  auto_stop_on_complete: true
+
+# Processing pipeline
+processing:
+  downsample_algorithm: "lanczos"  # Options: nearest, bilinear, lanczos
+  color_space: "sRGB"
+  enable_parallel_processing: true
+  max_concurrent_frames: 4
+
+# GIF encoding
+gif:
+  color_palette_size: 256
+  dithering: "floyd_steinberg"  # Options: none, floyd_steinberg, ordered
+  optimization_level: 2          # 0-3, higher = better compression
+  loop_count: 0                  # 0 = infinite loop
+  frame_delay_ms: 33
+
+# Storage settings
+storage:
+  temp_directory: "tmp"
+  output_directory: "GIFs"
+  auto_cleanup_temp_files: true
+  max_cache_size_mb: 100
+  save_to_photos_by_default: true
+
+# Rust FFI settings
+rust_ffi:
+  library_name: "libyingif_processor"
+  enable_panic_handler: true
+  log_level: "info"  # Options: trace, debug, info, warn, error
+
+# Debug settings
+debug:
+  enable_verbose_logging: true
+  save_debug_frames: false
+  show_fps_counter: true
+  show_memory_usage: true
+  enable_performance_markers: true
+
+# Error handling
+error_handling:
+  max_retries: 3
+  retry_delay_ms: 1000
+  fallback_to_swift_processing: true
+  show_error_alerts: true
+
+# UI configuration
+ui:
+  theme: "dark"  # Options: light, dark, auto
+  show_onboarding: true
+  haptic_feedback: true
+  animation_duration_ms: 300
+
+# Permissions
+permissions:
+  camera:
+    required: true
+    usage_description: "RGB2GIF2VOXEL needs camera access to capture frames for GIF creation"
+  photos:
+    required: false
+    usage_description: "Save your created GIFs to your Photos library"

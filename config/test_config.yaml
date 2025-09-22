@@ -1,0 +1,191 @@
+# Test Configuration
+# Defines test suites, coverage requirements, and testing strategies
+
+test_configuration:
+  framework: "XCTest"
+  parallel_execution: true
+  continue_on_failure: false
+  generate_coverage_report: true
+
+test_suites:
+  unit_tests:
+    - module: "Bridge"
+      tests:
+        - "RustFFITests"
+        - "GIFEncoderTests"
+        - "MemoryManagementTests"
+      requirements:
+        min_coverage: 80
+        max_duration_seconds: 10
+
+    - module: "Camera"
+      tests:
+        - "CameraSetupTests"
+        - "FrameCaptureTests"
+        - "PermissionFlowTests"
+        - "CropResizeTests"
+      requirements:
+        min_coverage: 75
+        max_duration_seconds: 30
+        requires_device: true  # Cannot run on simulator
+
+    - module: "Pipeline"
+      tests:
+        - "FrameProcessingTests"
+        - "CBOREncodingTests"
+        - "TensorConstructionTests"
+      requirements:
+        min_coverage: 85
+        max_duration_seconds: 15
+
+    - module: "Services"
+      tests:
+        - "CameraServiceTests"
+        - "ProcessingServiceTests"
+        - "StorageServiceTests"
+        - "PermissionServiceTests"
+      requirements:
+        min_coverage: 90
+        max_duration_seconds: 20
+
+  integration_tests:
+    - name: "End-to-End Capture"
+      description: "Test complete capture to GIF pipeline"
+      steps:
+        - "Request camera permission"
+        - "Start camera session"
+        - "Capture 256 frames"
+        - "Process to GIF"
+        - "Save to Photos"
+      expected_duration_seconds: 60
+      requires_device: true
+
+    - name: "Permission Flows"
+      description: "Test all permission scenarios"
+      scenarios:
+        - "First time - grant all"
+        - "First time - deny camera"
+        - "Previously denied - settings redirect"
+        - "Limited photos access"
+      expected_duration_seconds: 30
+
+    - name: "Memory Pressure"
+      description: "Test under memory constraints"
+      scenarios:
+        - "Low memory warning during capture"
+        - "Background memory pressure"
+        - "Large buffer allocation failures"
+      expected_duration_seconds: 45
+
+  performance_tests:
+    - name: "Frame Processing Throughput"
+      metric: "frames_per_second"
+      baseline: 30
+      tolerance: 10  # percent
+
+    - name: "Memory Usage"
+      metric: "peak_memory_mb"
+      baseline: 256
+      tolerance: 20
+
+    - name: "GIF Encoding Speed"
+      metric: "encoding_time_seconds"
+      baseline: 2.0
+      tolerance: 25
+
+    - name: "App Launch Time"
+      metric: "time_to_interactive_seconds"
+      baseline: 1.5
+      tolerance: 15
+
+  ui_tests:
+    - name: "Camera UI Flow"
+      steps:
+        - "Launch app"
+        - "Grant permissions"
+        - "Verify preview visible"
+        - "Tap capture button"
+        - "Verify progress display"
+        - "Verify completion"
+      timeout_seconds: 120
+
+    - name: "Error Handling UI"
+      scenarios:
+        - "Camera permission denied"
+        - "Session configuration failed"
+        - "Processing error"
+      expected_behavior: "Show appropriate error message"
+
+# Mock data
+mock_data:
+  test_frames:
+    format: "BGRA32"
+    dimensions: [1920, 1080]
+    count: 256
+    pattern: "gradient"  # Options: solid, gradient, checkerboard, random
+
+  test_tensors:
+    dimensions: [256, 256, 256]
+    data_type: "uint8"
+    pattern: "sequential"
+
+# Test environment
+environment:
+  simulators:
+    - "iPhone 15 Pro"
+    - "iPhone 14"
+    - "iPhone SE (3rd generation)"
+
+  devices:
+    - "Physical iPhone (required for camera tests)"
+
+  os_versions:
+    - "iOS 17.0"
+    - "iOS 17.5"
+    - "iOS 18.0"
+
+# Coverage requirements
+coverage:
+  overall_minimum: 70
+  core_modules_minimum: 80
+  exclude_from_coverage:
+    - "*/Tests/*"
+    - "*/Mocks/*"
+    - "*/Generated/*"
+    - "*View.swift"  # UI files
+
+# Continuous Integration
+ci:
+  run_on_pull_request: true
+  run_on_main_branch: true
+
+  stages:
+    - name: "Lint"
+      command: "swiftlint"
+
+    - name: "Unit Tests"
+      command: "xcodebuild test -scheme RGB2GIF2VOXEL -destination 'platform=iOS Simulator,name=iPhone 15'"
+
+    - name: "Coverage Report"
+      command: "xcov"
+
+    - name: "Performance Tests"
+      command: "xcodebuild test -scheme RGB2GIF2VOXEL-Performance"
+      when: "main_branch_only"
+
+# Test utilities
+utilities:
+  assertion_helpers:
+    - "XCTAssertPixelBuffer"
+    - "XCTAssertTensor"
+    - "XCTAssertGIF"
+
+  performance_helpers:
+    - "measureFrameProcessing"
+    - "measureMemoryUsage"
+    - "measureGIFEncoding"
+
+  mock_helpers:
+    - "MockCameraSession"
+    - "MockPixelBuffer"
+    - "MockPermissionService"

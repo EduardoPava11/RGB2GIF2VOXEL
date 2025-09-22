@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "frames": 10,
+  "width": 1080,
+  "height": 1080,
+  "format": "RGBA8888",
+  "pattern": "gradient"
+}

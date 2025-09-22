@@ -1,0 +1,25 @@
+// Build settings for RGB2GIF2VOXEL
+
+// Bridging Header
+SWIFT_OBJC_BRIDGING_HEADER = RGB2GIF2VOXEL/RGB2GIF2VOXEL-Bridging-Header.h
+
+// Header Search Paths
+HEADER_SEARCH_PATHS = $(inherited) $(PROJECT_DIR)/ThirdParty/Headers
+
+// Library Search Paths
+LIBRARY_SEARCH_PATHS = $(inherited) $(PROJECT_DIR)/ThirdParty/RustCore.xcframework/ios-arm64 $(PROJECT_DIR)/ThirdParty/ZigCore.xcframework/ios-arm64
+
+// Other Linker Flags
+OTHER_LDFLAGS = $(inherited) -force_load $(PROJECT_DIR)/ThirdParty/RustCore.xcframework/ios-arm64/libyingif_processor.a -force_load $(PROJECT_DIR)/ThirdParty/ZigCore.xcframework/ios-arm64/libyxcbor.a -lc++
+
+// Framework Search Paths
+FRAMEWORK_SEARCH_PATHS = $(inherited) $(PROJECT_DIR)/ThirdParty
+
+// Enable Modules
+CLANG_ENABLE_MODULES = YES
+
+// Target iOS 17+
+IPHONEOS_DEPLOYMENT_TARGET = 17.0
+
+// Valid Architectures
+VALID_ARCHS = arm64

@@ -1,0 +1,54 @@
+# Exclude ALL markdown files from being copied as app resources
+*.md
+**/*.md
+Documentation/**
+
+# Exclude build and intermediate directories
+.build/**
+.swiftpm/**
+DerivedData/**
+target/**
+build/**
+
+# Exclude XCFramework Info.plist files from being bundled
+ThirdParty/**/*.plist
+RustCore.xcframework/**/*.plist
+*.xcframework/**/*.plist
+
+# Only include the main app Info.plist
+!RGB2GIF2VOXEL/Info.plist
+
+# Exclude other development files
+*.sh
+**/*.sh
+*.yaml
+**/*.yaml
+*.yml
+**/*.yml
+Cargo.toml
+**/Cargo.toml
+Cargo.lock
+**/Cargo.lock
+*.rs
+**/*.rs
+*.udl
+**/*.udl
+
+# Exclude build and package files
+Package.swift
+*.xcconfig
+**/*.xcconfig
+
+# Exclude third-party frameworks' Info.plist
+ThirdParty/**/Info.plist
+RustCore.xcframework/Info.plist
+
+# Exclude generated files that shouldn't be bundled
+**/Generated/*.h
+**/Generated/*.modulemap
+
+# Exclude documentation
+VERIFICATION_REPORT.md
+IMPLEMENTATION_COMPLETE.md
+XCODE_SETUP.md
+FIXES_APPLIED.md

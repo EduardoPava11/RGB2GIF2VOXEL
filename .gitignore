@@ -1,0 +1,41 @@
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.xcuserstate
+
+# Swift Package Manager
+.build/
+Packages/
+
+# Rust
+target/
+Cargo.lock
+*.rs.bk
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
+*~
+
+# Python (removed but for future reference)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/

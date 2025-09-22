@@ -1,0 +1,25 @@
+# Enhanced Cargo.toml with kornia-rs integration
+[package]
+name = "rgb2gif2voxel-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Replace image crate with kornia-rs for 3-5x speedup
+kornia-image = "0.1"
+kornia-tensor = "0.1"
+kornia-imgproc = "0.1"
+kornia-3d = "0.1"
+
+# Keep for GIF encoding
+gif = "0.13"
+color-quant = "1.1"
+
+# For iOS FFI
+libc = "0.2"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+opt-level = 3
+debug = false

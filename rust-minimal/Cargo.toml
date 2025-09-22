@@ -1,0 +1,15 @@
+[package]
+name = "rust-minimal"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+name = "rust_minimal"
+
+[dependencies]
+# Minimal - no dependencies for now
+
+[profile.release]
+lto = true
+opt-level = 3

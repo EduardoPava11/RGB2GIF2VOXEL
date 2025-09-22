@@ -1,0 +1,155 @@
+name: Quality Gates
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  swift-quality:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run SwiftLint
+        run: |
+          swiftlint lint --strict --reporter json > swiftlint.json || true
+          echo "SwiftLint violations:"
+          cat swiftlint.json | python3 -c "import sys, json; data=json.load(sys.stdin); print(f'Total: {len(data)} violations')"
+
+      - name: Build iOS App
+        run: |
+          xcodebuild -project RGB2GIF2VOXEL.xcodeproj \
+            -scheme RGB2GIF2VOXEL \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Upload SwiftLint Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: swiftlint-report
+          path: swiftlint.json
+
+  rust-quality:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust-core/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Check Formatting
+        run: |
+          cd rust-core
+          cargo fmt -- --check
+
+      - name: Run Clippy
+        run: |
+          cd rust-core
+          cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Build
+        run: |
+          cd rust-core
+          cargo build --release
+
+      - name: Run Tests
+        run: |
+          cd rust-core
+          cargo test --all-features --release
+
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Run Security Audit
+        run: |
+          cd rust-core
+          cargo audit
+
+  integration-test:
+    needs: [swift-quality, rust-quality]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust Library
+        run: |
+          cd rust-core
+          cargo build --target aarch64-apple-ios --release
+          cargo build --target x86_64-apple-ios --release
+
+      - name: Generate Swift Bindings
+        run: |
+          cd rust-core
+          cargo install uniffi-bindgen-swift
+          uniffi-bindgen-swift generate \
+            --library target/aarch64-apple-ios/release/librgb2gif_processor.a \
+            --out-dir ../RGB2GIF2VOXEL/Bridge/Generated
+
+      - name: Build Complete App
+        run: |
+          xcodebuild -project RGB2GIF2VOXEL.xcodeproj \
+            -scheme RGB2GIF2VOXEL \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            build-for-testing
+
+  quality-report:
+    needs: [swift-quality, rust-quality, security-audit]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Generate Quality Report
+        run: |
+          echo "# Quality Gate Results" > quality-report.md
+          echo "" >> quality-report.md
+          echo "## Build Status" >> quality-report.md
+          echo "- Swift Quality: ${{ needs.swift-quality.result }}" >> quality-report.md
+          echo "- Rust Quality: ${{ needs.rust-quality.result }}" >> quality-report.md
+          echo "- Security Audit: ${{ needs.security-audit.result }}" >> quality-report.md
+          echo "" >> quality-report.md
+          echo "Generated: $(date)" >> quality-report.md
+
+      - name: Upload Quality Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: quality-report
+          path: quality-report.md
