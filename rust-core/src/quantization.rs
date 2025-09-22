@@ -16,11 +16,11 @@ pub struct QuantizeOptions {
 impl Default for QuantizeOptions {
     fn default() -> Self {
         Self {
-            quality_min: 70,
+            quality_min: 85,      // Increased for better quality
             quality_max: 100,
-            speed: 3,           // Good balance
-            palette_size: 256,
-            dithering_level: 1.0,
+            speed: 1,             // Slowest = best quality
+            palette_size: 255,    // Reserve 1 for future transparency
+            dithering_level: 0.85, // Less aggressive, better for animations
         }
     }
 }
@@ -42,13 +42,13 @@ pub fn quantize_frame(
     // Create attributes with quality settings
     let mut attr = Attributes::new();
     attr.set_quality(options.quality_min, options.quality_max)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Invalid quality: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     attr.set_speed(options.speed)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Invalid speed: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     attr.set_max_colors(options.palette_size as u32)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Invalid palette size: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     // Convert raw bytes to RGBA slice
     use imagequant::RGBA;
@@ -66,19 +66,19 @@ pub fn quantize_frame(
         width as usize,
         height as usize,
         0.0, // gamma (0 = sRGB)
-    ).map_err(|e| ProcessorError::QuantizationError(format!("Failed to create image: {}", e)))?;
+    ).map_err(|_| ProcessorError::QuantizationError)?;
 
     // Perform quantization
     let mut result = attr.quantize(&mut image)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Quantization failed: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     // Set dithering level
     result.set_dithering_level(options.dithering_level)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Failed to set dithering: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     // Remap to palette indices
     let (palette, indices) = result.remapped(&mut image)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Remapping failed: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     // Convert palette to packed u32 RGBA
     let palette_rgba: Vec<u32> = palette.iter()
@@ -123,13 +123,13 @@ fn quantize_with_shared_palette(
     // Create shared attributes
     let mut attr = Attributes::new();
     attr.set_quality(options.quality_min, options.quality_max)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Invalid quality: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     attr.set_speed(options.speed)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Invalid speed: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     attr.set_max_colors(options.palette_size as u32)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Invalid palette size: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     // Build histogram from all frames
     // For simplicity, just use first frame's palette for all
@@ -155,16 +155,16 @@ fn quantize_with_shared_palette(
         width as usize,
         height as usize,
         0.0,
-    ).map_err(|e| ProcessorError::QuantizationError(format!("Failed to create image: {}", e)))?;
+    ).map_err(|_| ProcessorError::QuantizationError)?;
 
     let mut quant_result = attr.quantize(&mut first_image)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Quantization failed: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     quant_result.set_dithering_level(options.dithering_level)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Failed to set dithering: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     let (palette, _) = quant_result.remapped(&mut first_image)
-        .map_err(|e| ProcessorError::QuantizationError(format!("Remapping failed: {}", e)))?;
+        .map_err(|_| ProcessorError::QuantizationError)?;
 
     // Convert palette to packed format
     let palette_rgba: Vec<u32> = palette.iter()
@@ -189,17 +189,17 @@ fn quantize_with_shared_palette(
                 width as usize,
                 height as usize,
                 0.0,
-            ).map_err(|e| ProcessorError::QuantizationError(format!("Failed to create image: {}", e)))?;
+            ).map_err(|_| ProcessorError::QuantizationError)?;
 
             // Quantize with the shared attribute (will reuse palette)
             let mut result = attr.quantize(&mut image)
-                .map_err(|e| ProcessorError::QuantizationError(format!("Quantization failed: {}", e)))?;
+                .map_err(|_| ProcessorError::QuantizationError)?;
 
             result.set_dithering_level(options.dithering_level)
-                .map_err(|e| ProcessorError::QuantizationError(format!("Failed to set dithering: {}", e)))?;
+                .map_err(|_| ProcessorError::QuantizationError)?;
 
             let (_, indices) = result.remapped(&mut image)
-                .map_err(|e| ProcessorError::QuantizationError(format!("Remapping failed: {}", e)))?;
+                .map_err(|_| ProcessorError::QuantizationError)?;
 
             Ok(QuantizeResult {
                 indices,
@@ -221,13 +221,14 @@ pub fn quantize_optimized(
     max_colors: u16,
 ) -> Result<Vec<QuantizeResult>> {
     let options = QuantizeOptions {
-        quality_min: 50,
-        quality_max: 95,
-        speed: 5, // Medium speed
-        palette_size: max_colors,
-        dithering_level: 0.75, // Less dithering for cleaner look
+        quality_min: 85,       // High quality baseline
+        quality_max: 100,      // Maximum quality
+        speed: 1,              // Best quality (slower)
+        palette_size: max_colors.min(255), // Cap at 255
+        dithering_level: 0.85, // Optimal for animations
     };
 
+    // Always use shared palette for temporal coherence
     quantize_batch(frames, width, height, &options, true)
 }
 

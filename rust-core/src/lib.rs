@@ -8,9 +8,16 @@ use imagequant::{RGBA};
 
 // Include modules
 mod quantization;
+mod oklab_quantization;
+mod blue_noise;
 
 // Re-export for use
 use quantization::*;
+use oklab_quantization::*;
+use blue_noise::*;
+
+// Type alias for Result
+pub type Result<T> = std::result::Result<T, ProcessorError>;
 
 // UniFFI Error type matching the UDL
 #[derive(Debug, thiserror::Error)]
@@ -60,7 +67,7 @@ pub struct ProcessResult {
     pub palette_size_used: u16,
 }
 
-// Main processing function - single FFI call for all frames
+// Enhanced processing function with OKLab and blue noise dithering
 pub fn process_all_frames(
     frames_rgba: Vec<u8>,
     width: u32,
@@ -68,7 +75,7 @@ pub fn process_all_frames(
     frame_count: u32,
     quantize_opts: QuantizeOpts,
     gif_opts: GifOpts,
-) -> Result<ProcessResult, ProcessorError> {
+) -> Result<ProcessResult> {
     let start = Instant::now();
 
     // Validate buffer size
@@ -83,7 +90,14 @@ pub fn process_all_frames(
         .chunks_exact(frame_size)
         .collect();
 
-    // Setup imagequant attributes
+    // Use OKLab quantization for superior quality
+    let use_oklab = true; // Always use OKLab for maximum quality
+
+    if use_oklab {
+        return process_with_oklab(frames, width, height, quantize_opts, gif_opts);
+    }
+
+    // Fallback to original imagequant (kept for compatibility)
     let mut attr = imagequant::new();
     attr.set_quality(quantize_opts.quality_min, quantize_opts.quality_max)
         .map_err(|_| ProcessorError::QuantizationError)?;
@@ -189,7 +203,7 @@ pub fn validate_buffer(buffer: Vec<u8>, expected_size: u32) -> bool {
 }
 
 // Helper function to build tensor
-fn build_tensor_from_frames(frames: &[&[u8]], width: u32, _height: u32) -> Result<Vec<u8>, ProcessorError> {
+fn build_tensor_from_frames(frames: &[&[u8]], width: u32, _height: u32) -> Result<Vec<u8>> {
     // Downsample each frame to 16×16 and pack into tensor
     let tensor_size = 16 * 16 * frames.len();
     let mut tensor = Vec::with_capacity(tensor_size * 4);
@@ -228,6 +242,126 @@ fn build_tensor_from_frames(frames: &[&[u8]], width: u32, _height: u32) -> Resul
 
     Ok(tensor)
 }
+
+// Enhanced processing with OKLab color space and blue noise dithering
+fn process_with_oklab(
+    frames: Vec<&[u8]>,
+    width: u32,
+    height: u32,
+    quantize_opts: QuantizeOpts,
+    gif_opts: GifOpts,
+) -> Result<ProcessResult> {
+    let start = Instant::now();
+
+    // Convert all frames to OKLab and build shared palette
+    let mut all_oklab_pixels = Vec::new();
+    for frame in &frames {
+        let oklab = srgb_to_oklab_batch(frame);
+        all_oklab_pixels.extend(oklab);
+    }
+
+    // Build optimal palette in OKLab space (much better than RGB)
+    let palette_size = quantize_opts.palette_size as usize;
+    let oklab_palette = build_oklab_palette(&all_oklab_pixels, palette_size);
+
+    // Convert palette back to sRGB for GIF encoding
+    let srgb_palette = oklab_palette_to_srgb(&oklab_palette);
+
+    // Initialize temporal dithering
+    let mut temporal_dither = TemporalDither::new();
+
+    // Process frames with temporal dithering and blue noise
+    let mut indexed_frames = Vec::new();
+    for (frame_idx, frame_data) in frames.iter().enumerate() {
+        // Convert frame to OKLab
+        let frame_oklab = srgb_to_oklab_batch(frame_data);
+
+        // Apply temporal dithering for smooth animation
+        let indices = temporal_dither.apply(
+            &frame_oklab,
+            &oklab_palette,
+            width as usize,
+            height as usize,
+        );
+
+        // Alternative: Use temporal blue noise (can switch based on content)
+        // let indices = temporal_blue_noise(
+        //     frame_data,
+        //     width as usize,
+        //     height as usize,
+        //     &srgb_palette,
+        //     0.85,
+        //     frame_idx,
+        // );
+
+        indexed_frames.push(indices);
+    }
+
+    // Create GIF with enhanced palette
+    let mut gif_buffer = Vec::new();
+    {
+        use gif::{Encoder, Frame, Repeat};
+
+        // Convert palette for GIF format
+        let mut global_palette = Vec::with_capacity(srgb_palette.len() * 3);
+        for color in &srgb_palette {
+            global_palette.push(color[0]);
+            global_palette.push(color[1]);
+            global_palette.push(color[2]);
+        }
+
+        // Ensure palette is exactly 256 colors (pad with black if needed)
+        while global_palette.len() < 768 { // 256 * 3
+            global_palette.push(0);
+        }
+
+        let mut encoder = Encoder::new(
+            &mut gif_buffer,
+            gif_opts.width,
+            gif_opts.height,
+            &global_palette[0..768]
+        ).map_err(|_| ProcessorError::EncodingError)?;
+
+        encoder.set_repeat(Repeat::Infinite)
+            .map_err(|_| ProcessorError::EncodingError)?;
+
+        // Write frames
+        for indices in indexed_frames {
+            let frame = Frame {
+                width: gif_opts.width,
+                height: gif_opts.height,
+                buffer: indices.into(),
+                delay: 100 / gif_opts.fps,
+                ..Default::default()
+            };
+            encoder.write_frame(&frame)
+                .map_err(|_| ProcessorError::EncodingError)?;
+        }
+    }
+
+    // Build tensor if requested
+    let tensor_data = if gif_opts.include_tensor {
+        Some(build_tensor_from_frames(&frames, width, height)?)
+    } else {
+        None
+    };
+
+    let file_size = gif_buffer.len() as u32;
+    Ok(ProcessResult {
+        gif_data: gif_buffer,
+        tensor_data,
+        final_file_size: file_size,
+        processing_time_ms: start.elapsed().as_millis() as f32,
+        actual_frame_count: frames.len() as u16,
+        palette_size_used: srgb_palette.len() as u16,
+    })
+}
+
+// Helper function imports from oklab_quantization module
+use oklab_quantization::{
+    srgb_to_oklab_batch, build_oklab_palette, oklab_palette_to_srgb,
+    TemporalDither,
+};
 
 // Include UniFFI scaffolding
 uniffi::include_scaffolding!("rgb2gif");
