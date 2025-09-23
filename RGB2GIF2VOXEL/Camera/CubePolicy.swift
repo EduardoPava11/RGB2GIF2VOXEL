@@ -4,10 +4,10 @@ import Foundation
 public struct CubePolicy {
 
     /// Available cube sizes for N×N×N tensor capture
-    public static let availableLevels = [528, 264, 256, 132]
+    public static let availableLevels = [528, 264, 256, 132, 128]
 
-    /// Default recommended level for iPhone 17 Pro (256³ optimal quality/performance)
-    public static let defaultLevel = 256
+    /// Default recommended level (128³ for reduced footprint/performance headroom)
+    public static let defaultLevel = 128
 
     /// Maximum frames we can capture (largest cube)
     public static let maxFrames = 528
@@ -26,7 +26,7 @@ public struct CubePolicy {
                 return level
             }
         }
-        return 132 // Fallback to smallest available
+        return 128 // Fallback to smallest available in our set
     }
 
     /// Get a user-friendly label for a pyramid level
@@ -40,6 +40,8 @@ public struct CubePolicy {
             return "256³ (17MB) • HD Quality"
         case 132:
             return "132³ (2.3MB)"
+        case 128:
+            return "128³ (2.1MB) • Optimal"
         default:
             return "\(level)³"
         }

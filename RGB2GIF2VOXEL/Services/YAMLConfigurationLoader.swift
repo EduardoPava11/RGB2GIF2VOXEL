@@ -211,24 +211,28 @@ public class YAMLConfigurationLoader: ObservableObject {
     public func toProcessorOptions() -> ProcessorOptions? {
         guard let config = currentConfig else { return nil }
 
+        let quantizeOpts = FFIOptionsBuilder.buildQuantizeOpts(
+            qualityMin: config.quantization.qualityMin,
+            qualityMax: config.quantization.qualityMax,
+            speed: Int(config.quantization.speed),
+            paletteSize: config.quantization.paletteSize,
+            ditheringLevel: Float(config.quantization.dithering),
+            sharedPalette: true
+        )
+
+        let gifOpts = FFIOptionsBuilder.buildGifOpts(
+            width: config.capture.resolution.width,
+            height: config.capture.resolution.height,
+            frameCount: config.capture.frameCount,
+            fps: config.capture.fps,
+            loopCount: config.gif.loopCount,
+            optimize: config.gif.optimize,
+            includeTensor: false  // Default to false
+        )
+
         return ProcessorOptions(
-            quantize: QuantizeOpts(
-                qualityMin: UInt8(config.quantization.qualityMin),
-                qualityMax: UInt8(config.quantization.qualityMax),
-                speed: Int32(config.quantization.speed),
-                paletteSize: UInt16(config.quantization.paletteSize),
-                ditheringLevel: Float(config.quantization.dithering),
-                sharedPalette: true
-            ),
-            gif: GifOpts(
-                width: UInt16(config.capture.resolution.width),
-                height: UInt16(config.capture.resolution.height),
-                frameCount: UInt16(config.capture.frameCount),
-                fps: UInt16(config.capture.fps),
-                loopCount: UInt16(config.gif.loopCount),
-                optimize: config.gif.optimize,
-                includeTensor: false  // Default to false
-            ),
+            quantize: quantizeOpts,
+            gif: gifOpts,
             parallel: config.performance.parallel
         )
     }

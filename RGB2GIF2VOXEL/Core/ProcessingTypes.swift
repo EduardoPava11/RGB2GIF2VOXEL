@@ -142,14 +142,14 @@ public struct ProcessingMetrics {
 public struct ProcessingConfiguration {
     public let targetSize: Int
     public let frameCount: Int
-    public let qualityLevel: Float
+    public let qualityLevel: Double  // Changed from Float to Double for UI consistency
     public let enableDithering: Bool
     public let generateTensor: Bool
-    
+
     public init(
-        targetSize: Int = 256,
-        frameCount: Int = 256,
-        qualityLevel: Float = 0.8,
+        targetSize: Int = 128,
+        frameCount: Int = 128,
+        qualityLevel: Double = 0.8,  // Changed from Float to Double
         enableDithering: Bool = true,
         generateTensor: Bool = false
     ) {
@@ -159,12 +159,12 @@ public struct ProcessingConfiguration {
         self.enableDithering = enableDithering
         self.generateTensor = generateTensor
     }
-    
+
     public static let defaultConfig = ProcessingConfiguration()
-    
+
     public static let highQualityConfig = ProcessingConfiguration(
-        targetSize: 256,
-        frameCount: 256,
+        targetSize: 128,
+        frameCount: 128,
         qualityLevel: 0.95,
         enableDithering: true,
         generateTensor: true
@@ -176,10 +176,10 @@ public struct ProcessingConfiguration {
 public enum ProcessingState: Equatable {
     case idle
     case capturing(frameCount: Int)
-    case processing(stage: String, progress: Float)
+    case processing(stage: String, progress: Double)  // Changed from Float to Double
     case complete(result: ProcessingResult)
     case error(message: String)
-    
+
     public static func == (lhs: ProcessingState, rhs: ProcessingState) -> Bool {
         switch (lhs, rhs) {
         case (.idle, .idle):

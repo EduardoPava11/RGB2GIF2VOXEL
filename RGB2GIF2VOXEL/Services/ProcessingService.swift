@@ -39,7 +39,7 @@ public class ProcessingService {
             return downsampled
         } catch {
             os_log(.error, log: logger, "❌ Downsampling failed: %@", error.localizedDescription)
-            throw ProcessingError.downsamplingFailed(error as? DownsampleError ?? .invalidData)
+            throw PipelineError.processingFailed("Downsampling failed: \(error.localizedDescription)")
         }
     }
 

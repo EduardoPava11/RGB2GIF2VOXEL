@@ -111,8 +111,8 @@ pub fn process_all_frames(
     let frame_size = (width * height * 4) as usize;
     let frames: Vec<&[u8]> = frames_rgba.chunks_exact(frame_size).collect();
 
-    // Use OKLab color space for superior quality
-    process_with_oklab(frames, width, height, quantize_opts, gif_opts)
+    // Use imagequant for proven quality
+    process_with_imagequant(frames, width, height, quantize_opts, gif_opts)
 }
 
 // ============================================================================
@@ -170,8 +170,24 @@ fn process_with_oklab(
 
     // Generate tensor if requested (for voxel visualization)
     let tensor_data = if gif_opts.include_tensor {
-        Some(build_tensor_from_frames(&frames, width, height)?)
+        eprintln!("[RUST] Building tensor for voxel visualization...");
+        eprintln!("[RUST]   Frame count: {}", frames.len());
+        eprintln!("[RUST]   Frame dimensions: {}x{}", width, height);
+        let tensor = build_tensor_from_frames(&frames, width, height)?;
+        eprintln!("[RUST]   Tensor size: {} bytes", tensor.len());
+        eprintln!("[RUST]   Expected size for 128³: {} bytes", 128*128*128*4);
+
+        // Verify tensor is not empty
+        let has_data = tensor.iter().take(1000).any(|&b| b != 0);
+        eprintln!("[RUST]   Contains non-zero data: {}", has_data);
+
+        if !has_data {
+            eprintln!("[RUST] WARNING: Tensor appears to be all zeros!");
+        }
+
+        Some(tensor)
     } else {
+        eprintln!("[RUST] Tensor generation skipped (include_tensor = false)");
         None
     };
 
@@ -190,8 +206,7 @@ fn process_with_oklab(
 // FALLBACK IMAGEQUANT PIPELINE
 // ============================================================================
 
-/// Fallback processing using imagequant library
-#[allow(dead_code)]
+/// Primary processing using imagequant library
 fn process_with_imagequant(
     frames: Vec<&[u8]>,
     width: u32,
@@ -231,17 +246,17 @@ fn process_with_imagequant(
     quantization.set_dithering_level(quantize_opts.dithering_level)
         .map_err(|_| ProcessorError::QuantizationError)?;
 
-    // Get palette
-    let palette = quantization.palette();
-    let palette_size = palette.len() as u16;
-
     // Remap frames to palette indices
     let mut indexed_frames = Vec::new();
-    for image in &mut images {
-        let (_, indices) = quantization.remapped(image)
+    for i in 0..images.len() {
+        let (_, indices) = quantization.remapped(&mut images[i])
             .map_err(|_| ProcessorError::QuantizationError)?;
         indexed_frames.push(indices);
     }
+
+    // Get palette after remapping
+    let palette = quantization.palette();
+    let palette_size = palette.len() as u16;
 
     // Convert palette for GIF
     let srgb_palette: Vec<[u8; 4]> = palette.iter()
@@ -253,8 +268,24 @@ fn process_with_imagequant(
 
     // Generate tensor if requested
     let tensor_data = if gif_opts.include_tensor {
-        Some(build_tensor_from_frames(&frames, width, height)?)
+        eprintln!("[RUST] Building tensor for voxel visualization (imagequant path)...");
+        eprintln!("[RUST]   Frame count: {}", frames.len());
+        eprintln!("[RUST]   Frame dimensions: {}x{}", width, height);
+        let tensor = build_tensor_from_frames(&frames, width, height)?;
+        eprintln!("[RUST]   Tensor size: {} bytes", tensor.len());
+        eprintln!("[RUST]   Expected size for 128³: {} bytes", 128*128*128*4);
+
+        // Verify tensor is not empty
+        let has_data = tensor.iter().take(1000).any(|&b| b != 0);
+        eprintln!("[RUST]   Contains non-zero data: {}", has_data);
+
+        if !has_data {
+            eprintln!("[RUST] WARNING: Tensor appears to be all zeros!");
+        }
+
+        Some(tensor)
     } else {
+        eprintln!("[RUST] Tensor generation skipped (include_tensor = false)");
         None
     };
 
@@ -265,7 +296,7 @@ fn process_with_imagequant(
         final_file_size: file_size,
         processing_time_ms: start.elapsed().as_millis() as f32,
         actual_frame_count: frames.len() as u16,
-        palette_size_used,
+        palette_size_used: palette_size,
     })
 }
 
@@ -296,30 +327,32 @@ fn encode_gif(
         global_palette.push(0);
     }
 
-    // Create encoder
-    let mut encoder = Encoder::new(
-        &mut gif_buffer,
-        opts.width,
-        opts.height,
-        &global_palette[0..768],
-    ).map_err(|_| ProcessorError::EncodingError)?;
+    // Encode in a block to ensure encoder is dropped
+    {
+        let mut encoder = Encoder::new(
+            &mut gif_buffer,
+            opts.width,
+            opts.height,
+            &global_palette[0..768],
+        ).map_err(|_| ProcessorError::EncodingError)?;
 
-    // Set infinite loop
-    encoder.set_repeat(Repeat::Infinite)
-        .map_err(|_| ProcessorError::EncodingError)?;
-
-    // Write frames
-    for indices in indexed_frames {
-        let frame = Frame {
-            width: opts.width,
-            height: opts.height,
-            buffer: indices.clone().into(),
-            delay: 100 / opts.fps, // Convert FPS to centiseconds
-            ..Default::default()
-        };
-        encoder.write_frame(&frame)
+        // Set infinite loop
+        encoder.set_repeat(Repeat::Infinite)
             .map_err(|_| ProcessorError::EncodingError)?;
-    }
+
+        // Write frames
+        for indices in indexed_frames {
+            let frame = Frame {
+                width: opts.width,
+                height: opts.height,
+                buffer: indices.clone().into(),
+                delay: 100 / opts.fps, // Convert FPS to centiseconds
+                ..Default::default()
+            };
+            encoder.write_frame(&frame)
+                .map_err(|_| ProcessorError::EncodingError)?;
+        }
+    } // encoder is dropped here
 
     Ok(gif_buffer)
 }
@@ -328,49 +361,59 @@ fn encode_gif(
 // TENSOR GENERATION FOR VOXEL VISUALIZATION
 // ============================================================================
 
-/// Build 16×16×256 tensor from frames for voxel cube visualization
-/// Each frame is downsampled to 16×16 for efficient 3D rendering
+/// Build 128×128×128 tensor from frames for voxel cube visualization (N=128 optimal)
+/// Optimal resolution tensor for exploring the voxel cube as a 3D object
 fn build_tensor_from_frames(frames: &[&[u8]], width: u32, height: u32) -> Result<Vec<u8>> {
-    let tensor_size = 16 * 16 * frames.len() * 4;
-    let mut tensor = Vec::with_capacity(tensor_size);
+    eprintln!("[RUST] build_tensor_from_frames called");
+    eprintln!("[RUST]   Input: {} frames at {}x{}", frames.len(), width, height);
 
-    // Downsample each frame to 16×16
-    let scale = (width / 16) as usize;
+    // For 128×128×128 voxel cube, we need 128 frames at 128×128 resolution
+    // If input is already 128×128, use directly; otherwise resample
 
-    for frame in frames {
-        for ty in 0..16 {
-            for tx in 0..16 {
-                // Box filter for downsampling
-                let mut r = 0u32;
-                let mut g = 0u32;
-                let mut b = 0u32;
-                let mut a = 0u32;
+    if width == 128 && height == 128 {
+        eprintln!("[RUST]   Using direct copy (frames already 128x128)");
+        // Direct copy - frames are already the right size
+        let mut tensor = Vec::with_capacity(frames.len() * 128 * 128 * 4);
 
-                for dy in 0..scale {
-                    for dx in 0..scale {
-                        let x = tx * scale + dx;
-                        let y = ty * scale + dy;
-                        let idx = (y * width as usize + x) * 4;
+        for (i, frame) in frames.iter().enumerate() {
+            // Verify frame has data
+            if i == 0 {
+                let has_data = frame.iter().take(100).any(|&b| b != 0);
+                eprintln!("[RUST]   First frame has data: {}", has_data);
+            }
+            tensor.extend_from_slice(frame);
+        }
 
-                        if idx + 3 < frame.len() {
-                            r += frame[idx] as u32;
-                            g += frame[idx + 1] as u32;
-                            b += frame[idx + 2] as u32;
-                            a += frame[idx + 3] as u32;
-                        }
+        eprintln!("[RUST]   Final tensor size: {} bytes", tensor.len());
+        Ok(tensor)
+    } else {
+        eprintln!("[RUST]   Resampling from {}x{} to 128x128", width, height);
+        // Need to resample to 128×128
+        let mut tensor = Vec::with_capacity(128 * 128 * frames.len() * 4);
+
+        for frame in frames {
+            // Simple nearest-neighbor resampling to 128×128
+            for y in 0..128 {
+                for x in 0..128 {
+                    // Map to source coordinates
+                    let src_x = (x as f32 * width as f32 / 128.0) as usize;
+                    let src_y = (y as f32 * height as f32 / 128.0) as usize;
+                    let src_idx = (src_y.min(height as usize - 1) * width as usize + src_x.min(width as usize - 1)) * 4;
+
+                    if src_idx + 3 < frame.len() {
+                        tensor.push(frame[src_idx]);     // R
+                        tensor.push(frame[src_idx + 1]); // G
+                        tensor.push(frame[src_idx + 2]); // B
+                        tensor.push(frame[src_idx + 3]); // A
+                    } else {
+                        tensor.extend_from_slice(&[0, 0, 0, 0]);
                     }
                 }
-
-                let pixels = (scale * scale) as u32;
-                tensor.push((r / pixels) as u8);
-                tensor.push((g / pixels) as u8);
-                tensor.push((b / pixels) as u8);
-                tensor.push((a / pixels) as u8);
             }
         }
-    }
 
-    Ok(tensor)
+        Ok(tensor)
+    }
 }
 
 // ============================================================================

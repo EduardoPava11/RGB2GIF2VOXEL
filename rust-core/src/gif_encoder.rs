@@ -17,9 +17,9 @@ pub struct GifOptions {
 impl Default for GifOptions {
     fn default() -> Self {
         Self {
-            width: 256,
-            height: 256,
-            frame_count: 256,
+            width: 128,      // N=128 mathematically optimal
+            height: 128,
+            frame_count: 128,
             fps: 30,
             loop_count: 0,  // Infinite loop
             optimize: true,

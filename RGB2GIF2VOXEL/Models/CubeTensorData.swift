@@ -15,11 +15,16 @@ public struct CubeTensorData {
     /// Actual palette size used (≤256)
     public let paletteSize: Int
 
-    public init(size: Int, indices: [UInt8], palette: [UInt32], paletteSize: Int) {
+    /// Optional raw RGBA tensor data from Rust (256×256×256×4 bytes)
+    /// This is the full-resolution voxel data for 3D visualization
+    public let rawTensorData: Data?
+
+    public init(size: Int, indices: [UInt8], palette: [UInt32], paletteSize: Int, rawTensorData: Data? = nil) {
         self.size = size
         self.indices = indices
         self.palette = palette
         self.paletteSize = paletteSize
+        self.rawTensorData = rawTensorData
     }
 
     /// Total voxel count in the cube

@@ -53,8 +53,8 @@ extension UIImage {
         let bitsPerComponent = 8
         let bitsPerPixel = 32
         let bytesPerRow = width * 4
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
 
         guard let cgImage = CGImage(
             width: width,

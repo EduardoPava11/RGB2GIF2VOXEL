@@ -11,6 +11,8 @@ import Accelerate
 import Photos
 import Combine
 import UIKit
+import ImageIO
+import UniformTypeIdentifiers
 import os
 
 @MainActor
@@ -276,8 +278,8 @@ public final class SingleFFIPipelineImproved: ObservableObject {
             contiguousBuffer.append(frame)
         }
 
-        // Call Rust FFI
-        let quantizeOpts = QuantizeOpts(
+        // Call Rust FFI using safe builder
+        let quantizeOpts = FFIOptionsBuilder.buildQuantizeOpts(
             qualityMin: 1,
             qualityMax: 10,
             speed: 5,
@@ -286,10 +288,10 @@ public final class SingleFFIPipelineImproved: ObservableObject {
             sharedPalette: false
         )
 
-        let gifOpts = GifOpts(
-            width: UInt16(targetSize),
-            height: UInt16(targetSize),
-            frameCount: UInt16(frames.count),
+        let gifOpts = FFIOptionsBuilder.buildGifOpts(
+            width: targetSize,
+            height: targetSize,
+            frameCount: frames.count,
             fps: 25,
             loopCount: 0,  // infinite
             optimize: true,
@@ -313,16 +315,62 @@ public final class SingleFFIPipelineImproved: ObservableObject {
         let swiftSignpost = PipelineSignpost.begin(.swiftGIF)
         defer { PipelineSignpost.end(.swiftGIF, swiftSignpost) }
 
-        let encoder = SwiftGIF89aEncoder()
-        let config = SwiftGIF89aEncoder.Config(
-            width: targetSize,
-            height: targetSize,
-            colorCount: 256,
-            frameDelay: 0.04,  // 25fps
-            loopCount: 0  // infinite
-        )
+        // Use ImageIO for GIF encoding
+        let output = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(output as CFMutableData, UTType.gif.identifier as CFString, frames.count, nil) else {
+            throw PipelineError.processingFailed("Failed to create image destination")
+        }
 
-        return try await encoder.encode(frames: frames, config: config)
+        // Set GIF properties
+        let gifProps: [CFString: Any] = [
+            kCGImagePropertyGIFDictionary: [
+                kCGImagePropertyGIFLoopCount: 0  // infinite loop
+            ]
+        ]
+        CGImageDestinationSetProperties(dest, gifProps as CFDictionary)
+
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bytesPerRow = targetSize * 4
+        let bitmapInfo: CGBitmapInfo = [
+            .byteOrder32Little,
+            CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue) // BGRA
+        ]
+
+        // Per-frame properties
+        let frameDelay = 0.04  // 25fps
+        let frameProps: [CFString: Any] = [
+            kCGImagePropertyGIFDictionary: [
+                kCGImagePropertyGIFDelayTime: frameDelay,
+                kCGImagePropertyGIFUnclampedDelayTime: frameDelay
+            ]
+        ]
+
+        // Add each frame
+        for frameData in frames {
+            frameData.withUnsafeBytes { bytes in
+                let baseAddress = bytes.bindMemory(to: UInt8.self).baseAddress!
+                if let provider = CGDataProvider(dataInfo: nil,
+                                                  data: baseAddress,
+                                                  size: frameData.count,
+                                                  releaseData: { _, _, _ in }),
+                   let cgImage = CGImage(width: targetSize,
+                                          height: targetSize,
+                                          bitsPerComponent: 8,
+                                          bitsPerPixel: 32,
+                                          bytesPerRow: bytesPerRow,
+                                          space: colorSpace,
+                                          bitmapInfo: bitmapInfo,
+                                          provider: provider,
+                                          decode: nil,
+                                          shouldInterpolate: false,
+                                          intent: .defaultIntent) {
+                    CGImageDestinationAddImage(dest, cgImage, frameProps as CFDictionary)
+                }
+            }
+        }
+
+        CGImageDestinationFinalize(dest)
+        return output as Data
     }
 }
 

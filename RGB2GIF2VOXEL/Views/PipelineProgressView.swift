@@ -57,10 +57,20 @@ public struct PipelineProgressView: View {
     private var currentPhaseCard: some View {
         HStack(spacing: 16) {
             // Animated icon
-            Image(systemName: phaseIcons[viewModel.currentPhase] ?? "circle")
-                .font(.system(size: 32))
-                .foregroundColor(phaseColors[viewModel.currentPhase])
-                .symbolEffect(.pulse, isActive: viewModel.isProcessing)
+            Group {
+                if #available(iOS 17.0, *) {
+                    Image(systemName: phaseIcons[viewModel.currentPhase] ?? "circle")
+                        .font(.system(size: 32))
+                        .foregroundColor(phaseColors[viewModel.currentPhase])
+                        .symbolEffect(.pulse, isActive: viewModel.isProcessing)
+                } else {
+                    Image(systemName: phaseIcons[viewModel.currentPhase] ?? "circle")
+                        .font(.system(size: 32))
+                        .foregroundColor(phaseColors[viewModel.currentPhase])
+                        .opacity(viewModel.isProcessing ? 0.6 : 1.0)
+                        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: viewModel.isProcessing)
+                }
+            }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.currentPhase.displayName)

@@ -78,7 +78,7 @@ class NativeGIFEncoder: ObservableObject {
     ///   - frames: Array of CVPixelBuffer frames from camera
     ///   - config: Encoding configuration
     /// - Returns: GIF data ready for saving
-    func encodeGIF(frames: [CVPixelBuffer], config: Configuration = Configuration()) async throws -> Data {
+    func encodeGIF(frames: [CVPixelBuffer], config: Configuration? = nil) async throws -> Data {
         guard !frames.isEmpty else {
             throw EncodingError.noFrames
         }
@@ -92,8 +92,9 @@ class NativeGIFEncoder: ObservableObject {
         return try await withCheckedThrowingContinuation { continuation in
             Task {
                 do {
-                    let gifData = try await performEncoding(frames: frames, config: config)
-                    
+                    let actualConfig = config ?? Configuration()
+                    let gifData = try await performEncoding(frames: frames, config: actualConfig)
+
                     await MainActor.run {
                         isProcessing = false
                         progress = 1.0
@@ -181,11 +182,13 @@ class NativeGIFEncoder: ObservableObject {
             return nil
         }
         
-        // Create color space
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        
-        // Create bitmap context
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
+        // Create sRGB color space for consistency with camera output
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
+            return nil
+        }
+
+        // BGRA format with premultiplied alpha (camera standard)
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
         
         guard let context = CGContext(
             data: baseAddress,

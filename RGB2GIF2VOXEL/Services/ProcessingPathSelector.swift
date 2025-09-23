@@ -24,7 +24,7 @@ public class ProcessingPathSelector: ObservableObject {
     @Published public var isProcessing: Bool = false
     @Published public var progress: Float = 0.0
     @Published public var currentStage: String = ""
-    @Published public var lastError: ProcessingError?
+    @Published public var lastError: Error?
     @Published public var pathAvailability: [ProcessingPath: Bool] = [:]
     
     // MARK: - Processing Components
@@ -79,11 +79,11 @@ public class ProcessingPathSelector: ObservableObject {
         /*
         do {
             // Try a minimal Rust FFI call to test connectivity
-            let testFrames = [Data(repeating: 0xFF, count: 256 * 256 * 4)]  // Single white frame
+            let testFrames = [Data(repeating: 0xFF, count: 128 * 128 * 4)]  // Single white frame
             let result = await rustProcessor.processFramesToGIF(
                 frames: testFrames,
-                width: 256,
-                height: 256
+                width: 128,
+                height: 128
             )
             return result != nil
         } catch {
@@ -96,11 +96,11 @@ public class ProcessingPathSelector: ObservableObject {
     
     // MARK: - Main Processing Function
     
-    /// Process 256x256x256 tensor using selected path with automatic fallback
+    /// Process 128x128x128 tensor using selected path with automatic fallback
     public func processTensorToGIF(
         frames: [Data],
-        width: Int = 256,
-        height: Int = 256
+        width: Int = 128,
+        height: Int = 128
     ) async throws -> ProcessingResult {
         
         os_log(.info, log: logger, "🚀 Starting processing with %@ path", selectedPath.displayName)
@@ -144,7 +144,7 @@ public class ProcessingPathSelector: ObservableObject {
                 } catch let fallbackError {
                     os_log(.error, log: logger, "❌ Both paths failed - Rust: %@, Swift: %@", 
                            error.localizedDescription, fallbackError.localizedDescription)
-                    throw ProcessingError.bothPathsFailed(rustError: error, swiftError: fallbackError)
+                    throw PipelineError.processingFailed("Both paths failed: Rust(\(error.localizedDescription)), Swift(\(fallbackError.localizedDescription))")
                 }
             }
             
@@ -158,7 +158,7 @@ public class ProcessingPathSelector: ObservableObject {
         currentStage = "🦀 Rust FFI Processing"
 
         guard pathAvailability[.rustFFI] == true else {
-            throw ProcessingError.pathUnavailable(.rustFFI)
+            throw PipelineError.processingFailed("Rust processing path is unavailable")
         }
 
         // TODO: Uncomment when rustProcessor is initialized
@@ -174,7 +174,7 @@ public class ProcessingPathSelector: ObservableObject {
             width: width,
             height: height
         ) else {
-            throw ProcessingError.rustProcessingFailed
+            throw PipelineError.processingFailed("Rust processing failed")
         }
 
         return ProcessingResult(
@@ -190,7 +190,7 @@ public class ProcessingPathSelector: ObservableObject {
         */
 
         // Temporary: throw unavailable until rustProcessor is initialized
-        throw ProcessingError.pathUnavailable(.rustFFI)
+        throw PipelineError.processingFailed("Rust processing path is unavailable")
     }
     
     // MARK: - Swift Processing
@@ -203,7 +203,7 @@ public class ProcessingPathSelector: ObservableObject {
 
         for frameData in frames {
             guard let pixelBuffer = createPixelBuffer(from: frameData, width: width, height: height) else {
-                throw ProcessingError.swiftProcessingFailed(reason: "Failed to create pixel buffer")
+                throw PipelineError.processingFailed("Swift processing failed: Failed to create pixel buffer")
             }
             pixelBuffers.append(pixelBuffer)
         }
@@ -238,7 +238,7 @@ public class ProcessingPathSelector: ObservableObject {
         */
 
         // Temporary: throw unavailable until swiftEncoder is initialized
-        throw ProcessingError.pathUnavailable(.swift)
+        throw PipelineError.processingFailed("Swift processing path is unavailable")
     }
     
     // MARK: - Utilities
@@ -304,19 +304,4 @@ public class ProcessingPathSelector: ObservableObject {
 // ProcessingResult and ProcessingMetrics are defined in ProcessingTypes.swift
 
 // MARK: - Error Extensions
-
-extension ProcessingError {
-    static func pathUnavailable(_ path: ProcessingPath) -> ProcessingError {
-        return .invalidInput // Extend this enum to include pathUnavailable case
-    }
-    
-    static let rustProcessingFailed = ProcessingError.invalidInput // Extend this enum
-    
-    static func swiftProcessingFailed(reason: String) -> ProcessingError {
-        return .invalidInput // Extend this enum
-    }
-    
-    static func bothPathsFailed(rustError: Error, swiftError: Error) -> ProcessingError {
-        return .invalidInput // Extend this enum with both errors
-    }
-}
+// PipelineError extension removed - using PipelineError instead

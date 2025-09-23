@@ -144,7 +144,7 @@ public class ProcessingPathManager: ObservableObject {
                     os_log(.error, log: logger, "❌ Both paths failed - Rust: %@, Swift: %@", 
                            error.localizedDescription, fallbackError.localizedDescription)
                     lastError = "Both processing paths failed"
-                    throw ProcessingError.encodingFailed("Both Rust and Swift paths failed")
+                    throw PipelineError.processingFailed("Both Rust and Swift paths failed")
                 }
             }
             
@@ -160,7 +160,7 @@ public class ProcessingPathManager: ObservableObject {
         progress = 0.1
 
         guard pathAvailability[.rustFFI] == true else {
-            throw ProcessingError.ffiError(code: -1)
+            throw PipelineError.processingFailed("FFI error: code -1")
         }
 
         os_log(.info, log: logger, "🦀 Using Rust FFI processing path")
@@ -194,7 +194,7 @@ public class ProcessingPathManager: ObservableObject {
         */
 
         // Temporary: throw unavailable until processingService is initialized
-        throw ProcessingError.ffiError(code: -1)
+        throw PipelineError.processingFailed("FFI error: code -1")
     }
     
     // MARK: - Swift Processing

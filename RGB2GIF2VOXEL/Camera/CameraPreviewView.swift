@@ -58,18 +58,4 @@ struct CameraPreviewView: UIViewRepresentable {
 }
 
 // MARK: - Square Preview Wrapper
-
-struct SquareCameraPreview: View {
-    let session: AVCaptureSession
-
-    var body: some View {
-        GeometryReader { geometry in
-            let size = min(geometry.size.width, geometry.size.height)
-
-            CameraPreviewView(session: session)
-                .frame(width: size, height: size)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
-        }
-    }
-}
+// Note: SquareCameraPreview is defined in SimplifiedCameraView.swift

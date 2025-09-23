@@ -15,8 +15,14 @@ struct CameraPreview: UIViewRepresentable {
 
     func makeUIView(context: Context) -> VideoPreviewView {
         let view = VideoPreviewView()
+
+        // Phase 5: Wrap in begin/commit configuration for reliability
+        session.beginConfiguration()
+
         view.videoPreviewLayer.session = session
-        view.videoPreviewLayer.videoGravity = .resizeAspectFill
+        view.videoPreviewLayer.videoGravity = .resizeAspectFill  // As per Apple docs
+
+        session.commitConfiguration()
 
         // Set initial orientation
         if let connection = view.videoPreviewLayer.connection {
@@ -28,6 +34,8 @@ struct CameraPreview: UIViewRepresentable {
                 connection.isVideoMirrored = shouldMirror()
             }
         }
+
+        print("📹 Camera preview layer configured: gravity=resizeAspectFill")
 
         return view
     }

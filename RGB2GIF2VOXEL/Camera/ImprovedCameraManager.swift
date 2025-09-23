@@ -26,7 +26,7 @@ public final class ImprovedCameraManager: NSObject, ObservableObject {
     // MARK: - Camera Components
 
     public let session = AVCaptureSession()
-    private let sessionQueue = DispatchQueue(label: "com.rgb2gif2voxel.camera", qos: .userInitiated)
+    private let sessionQueue = DispatchQueue(label: "com.yingif.rgb2gif2voxel.camera", qos: .userInitiated)
     private var videoOutput: AVCaptureVideoDataOutput?
     private var photoOutput: AVCapturePhotoOutput?
     private var videoInput: AVCaptureDeviceInput?

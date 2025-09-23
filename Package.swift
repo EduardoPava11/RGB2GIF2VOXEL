@@ -27,7 +27,8 @@ let package = Package(
             exclude: [
                 "Info.plist",
                 "Assets.xcassets",
-                "RGB2GIF2VOXEL-Bridging-Header.h"
+                "RGB2GIF2VOXEL-Bridging-Header.h",
+                "Frameworks"
             ]
         )
     ]

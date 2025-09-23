@@ -11,6 +11,8 @@ import AVFoundation
 import Accelerate
 import Photos
 import Combine
+import ImageIO
+import UniformTypeIdentifiers
 import os.log
 
 private let logger = OSLog(subsystem: "com.yingif.rgb2gif2voxel", category: "SingleFFIPipeline")
@@ -36,8 +38,8 @@ public class SingleFFIPipeline: ObservableObject {
     // MARK: - Configuration
 
     private let captureSize = 1080
-    private let targetSize = 256
-    private let targetFrameCount = 256
+    private let targetSize = 128      // N=128 optimal
+    private let targetFrameCount = 128
 
     // MARK: - Services
 
@@ -66,7 +68,6 @@ public class SingleFFIPipeline: ObservableObject {
             throw PipelineError.permissionDenied("Camera access denied")
         }
 
-        // Camera setup would be done here with actual CameraService
         os_log(.info, log: logger, "📷 Camera setup complete")
     }
 
@@ -120,7 +121,7 @@ public class SingleFFIPipeline: ObservableObject {
     private func handleCapturedFrame(_ pixelBuffer: CVPixelBuffer) async {
         guard isCapturing, capturedFrames.count < targetFrameCount else { return }
 
-        // Extract RGBA data
+        // Extract raw 4-channel data (camera is BGRA on iOS)
         let rgbaData = extractRGBAData(from: pixelBuffer)
         capturedFrames.append(rgbaData)
 
@@ -135,7 +136,6 @@ public class SingleFFIPipeline: ObservableObject {
 
     private func stopCapture() {
         isCapturing = false
-        // TODO: Implement camera service stop
         processingMetrics?.captureTime = CFAbsoluteTimeGetCurrent() - (processingMetrics?.captureTime ?? 0)
 
         os_log(.info, log: logger, "✅ Captured %d frames in %.2fs",
@@ -182,7 +182,7 @@ public class SingleFFIPipeline: ObservableObject {
         progress = 0.0
 
         do {
-            // Step 1: Downsample to 256×256
+            // Step 1: Downsample to 128×128
             let downsampleStart = CFAbsoluteTimeGetCurrent()
             downsizedFrames = try await downsampleFrames(capturedFrames)
             processingMetrics?.downsampleTime = CFAbsoluteTimeGetCurrent() - downsampleStart
@@ -190,7 +190,7 @@ public class SingleFFIPipeline: ObservableObject {
             os_log(.info, log: logger, "✅ Downsampled %d frames in %.2fs",
                    downsizedFrames.count, processingMetrics?.downsampleTime ?? 0)
 
-            // Step 2: Encode to CBOR
+            // Step 2: Encode to CBOR (optional path)
             currentStage = "Encoding CBOR frames..."
             let cborStart = CFAbsoluteTimeGetCurrent()
             cborFrames = try await encodeToCBOR(downsizedFrames)
@@ -199,9 +199,7 @@ public class SingleFFIPipeline: ObservableObject {
             os_log(.info, log: logger, "✅ Encoded %d CBOR frames in %.2fs",
                    cborFrames.count, processingMetrics?.cborEncodeTime ?? 0)
 
-            // Step 3: Save CBOR frames
-            try await saveCBORFrames(cborFrames)
-
+            // Now ready for Swift or Rust path
             isProcessing = false
             currentStage = "Ready to process"
 
@@ -225,7 +223,7 @@ public class SingleFFIPipeline: ObservableObject {
             downsampled.append(downsampledData)
 
             await MainActor.run {
-                progress = Float(index) / Float(frames.count)
+                progress = Float(index + 1) / Float(frames.count)
             }
         }
 
@@ -246,26 +244,11 @@ public class SingleFFIPipeline: ObservableObject {
             cborFrames.append(cborData)
 
             await MainActor.run {
-                progress = Float(index) / Float(frames.count)
+                progress = Float(index + 1) / Float(frames.count)
             }
         }
 
         return cborFrames
-    }
-
-    private func saveCBORFrames(_ frames: [Data]) async throws {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let sessionID = ISO8601DateFormatter().string(from: Date())
-        let sessionURL = documentsURL.appendingPathComponent("cbor_frames/\(sessionID)")
-
-        try FileManager.default.createDirectory(at: sessionURL, withIntermediateDirectories: true)
-
-        for (index, cborData) in frames.enumerated() {
-            let frameURL = sessionURL.appendingPathComponent(String(format: "frame_%03d.cbor", index))
-            try cborData.write(to: frameURL)
-        }
-
-        os_log(.info, log: logger, "✅ Saved %d CBOR frames to %@", frames.count, sessionURL.path)
     }
 
     // MARK: - Path Selection & Processing
@@ -283,8 +266,9 @@ public class SingleFFIPipeline: ObservableObject {
 
             switch selectedPath {
             case .rustFFI:
-                currentStage = "Processing with Rust FFI..."
-                gifData = try await processWithRust()
+                // For Swift-only build, route to Swift path
+                currentStage = "Processing with Swift (fallback)..."
+                gifData = try await processWithSwift()
 
             case .swift:
                 currentStage = "Processing with Swift..."
@@ -315,68 +299,20 @@ public class SingleFFIPipeline: ObservableObject {
         }
     }
 
-    // MARK: - Rust FFI Processing
-
-    private func processWithRust() async throws -> Data {
-        // Prepare contiguous buffer (256 frames * 256 * 256 * 4 bytes)
-        let bufferSize = targetFrameCount * targetSize * targetSize * 4
-        var contiguousBuffer = Data(capacity: bufferSize)
-
-        for frame in downsizedFrames {
-            contiguousBuffer.append(frame)
-        }
-
-        // Call Rust FFI
-        let quantizeOpts = QuantizeOpts(
-            qualityMin: 1,
-            qualityMax: 10,
-            speed: 5,
-            paletteSize: 256,
-            ditheringLevel: 0.0,
-            sharedPalette: false
-        )
-
-        let gifOpts = GifOpts(
-            width: 256,
-            height: 256,
-            frameCount: 256,
-            fps: 25,
-            loopCount: 0,  // 0 = infinite loop
-            optimize: true,
-            includeTensor: false
-        )
-
-        let result = try processAllFrames(
-            framesRgba: contiguousBuffer,
-            width: UInt32(targetSize),
-            height: UInt32(targetSize),
-            frameCount: UInt32(targetFrameCount),
-            quantizeOpts: quantizeOpts,
-            gifOpts: gifOpts
-        )
-
-        os_log(.info, log: logger, "🦀 Rust processing complete: %d bytes, %dms",
-               result.finalFileSize, Int(result.processingTimeMs))
-
-        return result.gifData
-    }
-
-    // MARK: - Swift Processing
+    // MARK: - Swift Processing (ImageIO GIF89a)
 
     private func processWithSwift() async throws -> Data {
-        let encoder = SwiftGIF89aEncoder()
+        let encoder = ImageIOGIFEncoder()
 
-        let config = SwiftGIF89aEncoder.Config(
+        let config = ImageIOGIFEncoder.Config(
             width: targetSize,
             height: targetSize,
-            colorCount: 256,
             frameDelay: 0.04,  // 25fps
-            loopCount: 0  // infinite
+            loopCount: 0       // 0 = infinite
         )
 
-        let gifData = try await encoder.encode(frames: downsizedFrames, config: config)
-
-        os_log(.info, log: logger, "🍎 Swift processing complete: %d bytes", gifData.count)
+        let gifData = try encoder.encodeBGRAFrames(frames: downsizedFrames, config: config)
+        os_log(.info, log: logger, "🍎 Swift (ImageIO) processing complete: %d bytes", gifData.count)
 
         return gifData
     }
@@ -426,7 +362,7 @@ public class SingleFFIPipeline: ObservableObject {
 
 // MARK: - Supporting Components
 
-// VImage Processor for downsampling
+// VImage Processor for downsampling (channel order-agnostic 4×8-bit)
 class VImageProcessor {
     func downsample(rgbaData: Data, fromSize: Int, toSize: Int) throws -> Data {
         let srcBytesPerRow = fromSize * 4
@@ -450,6 +386,7 @@ class VImageProcessor {
                 rowBytes: destBytesPerRow
             )
 
+            // Works for any 4-channel 8-bit layout (ARGB/BGRA/RGBA) since scaling is per-channel
             let error = vImageScale_ARGB8888(
                 &srcBuffer,
                 &destBuffer,
@@ -501,76 +438,86 @@ class CBORFrameEncoder {
     }
 }
 
-// Swift GIF89a Encoder (simplified)
-class SwiftGIF89aEncoder {
+// ImageIO-based GIF89a encoder
+class ImageIOGIFEncoder {
     struct Config {
         let width: Int
         let height: Int
-        let colorCount: Int
-        let frameDelay: TimeInterval
-        let loopCount: Int
+        let frameDelay: TimeInterval // seconds
+        let loopCount: Int           // 0 = infinite
     }
 
-    func encode(frames: [Data], config: Config) async throws -> Data {
-        // This is a simplified implementation
-        // In production, use ImageIO or a proper GIF library
+    // Input frames are 4×8-bit BGRA (iOS camera common format)
+    func encodeBGRAFrames(frames: [Data], config: Config) throws -> Data {
+        guard !frames.isEmpty else { return Data() }
 
-        var gifData = Data()
-
-        // GIF89a header
-        gifData.append("GIF89a".data(using: .utf8)!)
-
-        // Logical Screen Descriptor
-        gifData.append(contentsOf: withUnsafeBytes(of: UInt16(config.width).littleEndian) { Data($0) })
-        gifData.append(contentsOf: withUnsafeBytes(of: UInt16(config.height).littleEndian) { Data($0) })
-        gifData.append(0xF7)  // Global color table, 256 colors
-        gifData.append(0x00)  // Background color index
-        gifData.append(0x00)  // Pixel aspect ratio
-
-        // Global Color Table (simplified - grayscale)
-        for i in 0..<256 {
-            let gray = UInt8(i)
-            gifData.append(contentsOf: [gray, gray, gray])
+        let output = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(
+            output,
+            UTType.gif.identifier as CFString,
+            frames.count,
+            nil
+        ) else {
+            throw PipelineError.processingFailed("Failed to create GIF destination")
         }
 
-        // NETSCAPE2.0 Application Extension for looping
-        if config.loopCount == 0 {
-            gifData.append(contentsOf: [0x21, 0xFF, 0x0B])
-            gifData.append("NETSCAPE2.0".data(using: .utf8)!)
-            gifData.append(contentsOf: [0x03, 0x01, 0x00, 0x00, 0x00])
+        // Global properties: loop count
+        let gifProps: [CFString: Any] = [
+            kCGImagePropertyGIFDictionary: [
+                kCGImagePropertyGIFLoopCount: config.loopCount
+            ]
+        ]
+        CGImageDestinationSetProperties(dest, gifProps as CFDictionary)
+
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bytesPerRow = config.width * 4
+        let bitmapInfo: CGBitmapInfo = [
+            .byteOrder32Little,
+            CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue) // BGRA
+        ]
+
+        // Per-frame properties: delay time
+        let delay = config.frameDelay
+        let frameProps: [CFString: Any] = [
+            kCGImagePropertyGIFDictionary: [
+                kCGImagePropertyGIFDelayTime: delay,
+                kCGImagePropertyGIFUnclampedDelayTime: delay
+            ]
+        ]
+
+        for (idx, frame) in frames.enumerated() {
+            guard frame.count == bytesPerRow * config.height else {
+                throw PipelineError.processingFailed("Frame \(idx) has wrong size")
+            }
+
+            guard let provider = CGDataProvider(data: frame as CFData) else {
+                throw PipelineError.processingFailed("Failed to create data provider for frame \(idx)")
+            }
+
+            guard let image = CGImage(
+                width: config.width,
+                height: config.height,
+                bitsPerComponent: 8,
+                bitsPerPixel: 32,
+                bytesPerRow: bytesPerRow,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo,
+                provider: provider,
+                decode: nil,
+                shouldInterpolate: false,
+                intent: .defaultIntent
+            ) else {
+                throw PipelineError.processingFailed("Failed to create CGImage for frame \(idx)")
+            }
+
+            CGImageDestinationAddImage(dest, image, frameProps as CFDictionary)
         }
 
-        // Add frames (simplified - would need proper LZW compression)
-        for frameData in frames {
-            // Graphics Control Extension
-            gifData.append(contentsOf: [0x21, 0xF9, 0x04])
-            gifData.append(0x00)  // Disposal method
-            let delay = UInt16(config.frameDelay * 100)  // Convert to centiseconds
-            gifData.append(contentsOf: withUnsafeBytes(of: delay.littleEndian) { Data($0) })
-            gifData.append(contentsOf: [0x00, 0x00])  // Transparent color
-
-            // Image Descriptor
-            gifData.append(0x2C)  // Image separator
-            gifData.append(contentsOf: [0x00, 0x00, 0x00, 0x00])  // Left, Top
-            gifData.append(contentsOf: withUnsafeBytes(of: UInt16(config.width).littleEndian) { Data($0) })
-            gifData.append(contentsOf: withUnsafeBytes(of: UInt16(config.height).littleEndian) { Data($0) })
-            gifData.append(0x00)  // No local color table
-
-            // Image Data (simplified - would need LZW)
-            gifData.append(0x08)  // LZW minimum code size
-
-            // Simplified: just append a subset of frame data
-            // In reality, this needs proper LZW compression
-            let chunkSize = min(255, frameData.count / 256)
-            gifData.append(UInt8(chunkSize))
-            gifData.append(frameData.prefix(chunkSize))
-            gifData.append(0x00)  // Block terminator
+        guard CGImageDestinationFinalize(dest) else {
+            throw PipelineError.processingFailed("Failed to finalize GIF")
         }
 
-        // GIF Trailer
-        gifData.append(0x3B)
-
-        return gifData
+        return output as Data
     }
 }
 

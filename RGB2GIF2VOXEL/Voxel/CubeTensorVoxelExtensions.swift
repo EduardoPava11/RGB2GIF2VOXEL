@@ -20,7 +20,15 @@ extension CubeTensor {
         let spacing: Float = 0.01
         
         // Adaptive sparse sampling based on cube size
-        let sparseStep = sideN >= 256 ? 32 : (sideN >= 128 ? 8 : 1)
+        // For N=128, render every voxel as requested
+        let sparseStep: Int
+        if sideN >= 256 {
+            sparseStep = 32
+        } else if sideN == 128 {
+            sparseStep = 1
+        } else {
+            sparseStep = 1
+        }
         let actualVoxelSize = voxelSize * Float(sparseStep)
         
         print("🔵 Rendering \(sideN)³ voxel cube with sparse step: \(sparseStep)")

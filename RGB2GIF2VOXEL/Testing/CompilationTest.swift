@@ -17,8 +17,8 @@ class CompilationTest {
         // Test YinGifProcessor  
         let processor = YinGifProcessor()
         
-        // Test ProcessingError
-        let error = ProcessingError.invalidInput
+        // Test PipelineError
+        let error = PipelineError.processingFailed("Invalid input")
         
         // Test QuantizedFrame
         let frame = QuantizedFrame(index: 0, data: Data(repeating: 0xFF, count: 256 * 256 * 4), width: 256, height: 256)

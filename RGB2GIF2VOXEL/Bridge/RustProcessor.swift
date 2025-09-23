@@ -43,13 +43,13 @@ public class RustProcessor: ObservableObject {
         )
 
         self.gifOpts = GifOpts(
-            width: 256,
-            height: 256,
-            frameCount: 256,
+            width: UInt16(128),  // N=128 optimal
+            height: UInt16(128),
+            frameCount: UInt16(128),
             fps: 30,
             loopCount: 0, // Infinite
             optimize: true,
-            includeTensor: false // NEW field
+            includeTensor: true  // CRITICAL: Always generate tensor for voxel visualization
         )
     }
 
@@ -88,7 +88,8 @@ public class RustProcessor: ObservableObject {
     public func processFramesToGIF(
         frames: [Data],
         width: Int,
-        height: Int
+        height: Int,
+        includeTensor: Bool = false
     ) async -> ProcessResult? {
 
         await MainActor.run {
@@ -109,6 +110,7 @@ public class RustProcessor: ObservableObject {
             gifOpts.width = UInt16(width)
             gifOpts.height = UInt16(height)
             gifOpts.frameCount = UInt16(frames.count)
+            gifOpts.includeTensor = includeTensor
 
             // Call new single FFI function on background thread
             let result = try await Task.detached(priority: .userInitiated) { [quantizeOpts = self.quantizeOpts, gifOpts = self.gifOpts] in
@@ -174,9 +176,9 @@ public class RustProcessor: ObservableObject {
     }
 
     /// Convenience method for getting processing metrics
-    public func getMetrics(from result: ProcessResult) -> (time: Float, paletteSize: UInt16, fileSize: UInt32) {
+    public func getMetrics(from result: ProcessResult) -> (time: TimeInterval, paletteSize: UInt16, fileSize: UInt32) {
         return (
-            time: result.processingTimeMs,
+            time: NumericConversions.processingTimeFromFFI(result.processingTimeMs),
             paletteSize: result.paletteSizeUsed,
             fileSize: result.finalFileSize
         )

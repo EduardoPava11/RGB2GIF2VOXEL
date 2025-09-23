@@ -2,48 +2,19 @@
 //  YinGifProcessor.swift
 //  RGB2GIF2VOXEL
 //
-//  Rust FFI processor for frame processing
+//  Swift-only processor for frame processing (fallback to avoid Rust dependency)
 //
 
 import Foundation
+import Accelerate
 
-// MARK: - Rust FFI Functions (stubs for now)
-
-@_silgen_name("yingif_processor_new")
-func yingif_processor_new() -> OpaquePointer?
-
-@_silgen_name("yingif_processor_free")
-func yingif_processor_free(_ processor: OpaquePointer)
-
-@_silgen_name("yingif_process_frame")
-func yingif_process_frame(
-    _ processor: OpaquePointer?,
-    _ bgraData: UnsafePointer<UInt8>,
-    _ width: Int32,
-    _ height: Int32,
-    _ frameIndex: Int32,
-    _ indices: UnsafeMutablePointer<UInt8>,
-    _ palette: UnsafeMutablePointer<UInt32>,
-    _ paletteSize: UnsafeMutablePointer<Int32>
-) -> Int32
-
-/// Wrapper for Rust frame processing functions
+/// Pure-Swift frame processor that downsizes BGRA frames to targetSize.
+/// This is a fidelity-preserving fallback; quantization/palette control is left to ImageIO or higher-level logic.
 public class YinGifProcessor {
 
-    private let processor: OpaquePointer?
+    public init() {}
 
-    public init() {
-        // Initialize Rust processor
-        processor = yingif_processor_new()
-    }
-
-    deinit {
-        if let processor = processor {
-            yingif_processor_free(processor)
-        }
-    }
-
-    /// Process a BGRA frame to quantized format
+    /// Process a BGRA frame to a resized RGBA buffer (no quantization).
     public func processFrame(
         bgraData: Data,
         width: Int,
@@ -52,62 +23,54 @@ public class YinGifProcessor {
         paletteSize: Int,
         frameIndex: Int = 0
     ) throws -> QuantizedFrame {
-        // Allocate buffers for output
-        let pixelCount = targetSize * targetSize
-        let indices = UnsafeMutablePointer<UInt8>.allocate(capacity: pixelCount)
-        let palette = UnsafeMutablePointer<UInt32>.allocate(capacity: paletteSize)
-
-        defer {
-            indices.deallocate()
-            palette.deallocate()
+        // Quick path: if already the right size, return as-is
+        if width == targetSize, height == targetSize {
+            return QuantizedFrame(index: frameIndex, data: bgraData, width: targetSize, height: targetSize)
         }
 
-        // Process the frame
-        let result = bgraData.withUnsafeBytes { bytes -> Int32 in
-            guard let ptr = bytes.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return -1 }
+        let srcBytesPerRow = width * 4
+        let destBytesPerRow = targetSize * 4
 
-            var paletteSizeVar = Int32(paletteSize)
-            return yingif_process_frame(
-                processor,
-                ptr,
-                Int32(width),
-                Int32(height),
-                Int32(frameIndex),
-                indices,
-                palette,
-                &paletteSizeVar
+        return try bgraData.withUnsafeBytes { srcPtr -> QuantizedFrame in
+            guard let srcBase = srcPtr.baseAddress else {
+                throw YinGifProcessingError.invalidInput
+            }
+
+            let destData = UnsafeMutablePointer<UInt8>.allocate(capacity: targetSize * targetSize * 4)
+            defer { destData.deallocate() }
+
+            var srcBuffer = vImage_Buffer(
+                data: UnsafeMutableRawPointer(mutating: srcBase),
+                height: vImagePixelCount(height),
+                width: vImagePixelCount(width),
+                rowBytes: srcBytesPerRow
+            )
+
+            var destBuffer = vImage_Buffer(
+                data: destData,
+                height: vImagePixelCount(targetSize),
+                width: vImagePixelCount(targetSize),
+                rowBytes: destBytesPerRow
+            )
+
+            // Scale 4×8-bit channels (ARGB routine works channel-agnostically)
+            let err = vImageScale_ARGB8888(&srcBuffer, &destBuffer, nil, vImage_Flags(kvImageHighQualityResampling))
+            guard err == kvImageNoError else {
+                throw YinGifProcessingError.processingFailed("vImage scaling failed: \(err)")
+            }
+
+            let resized = Data(bytes: destData, count: targetSize * targetSize * 4)
+
+            return QuantizedFrame(
+                index: frameIndex,
+                data: resized,
+                width: targetSize,
+                height: targetSize
             )
         }
-
-        guard result == 0 else {
-            throw ProcessingError.ffiError(code: -1)
-        }
-
-        // For compatibility, create RGBA data from indices and palette
-        // This is a simplified conversion - real implementation would map indices to palette
-        var rgbaData = Data(capacity: pixelCount * 4)
-        let indicesData = Data(bytes: indices, count: pixelCount)
-        let paletteArray = Array(UnsafeBufferPointer(start: palette, count: paletteSize))
-
-        // Convert indexed color to RGBA
-        for i in 0..<pixelCount {
-            let colorIndex = Int(indices[i]) % paletteArray.count
-            let color = paletteArray[colorIndex]
-            rgbaData.append(UInt8((color >> 16) & 0xFF)) // R
-            rgbaData.append(UInt8((color >> 8) & 0xFF))  // G
-            rgbaData.append(UInt8(color & 0xFF))         // B
-            rgbaData.append(0xFF)                        // A
-        }
-
-        return QuantizedFrame(
-            index: frameIndex,
-            data: rgbaData,
-            width: targetSize,
-            height: targetSize
-        )
     }
 
-    /// Process frame asynchronously
+    /// Async helper
     public func processFrameAsync(
         bgraData: Data,
         width: Int,
@@ -115,11 +78,8 @@ public class YinGifProcessor {
         targetSize: Int,
         paletteSize: Int
     ) async throws -> QuantizedFrame {
-        return try await Task.detached(priority: .userInitiated) { [weak self] in
-            guard let self = self else {
-                throw ProcessingError.invalidInput
-            }
-            return try self.processFrame(
+        return try await Task.detached(priority: .userInitiated) {
+            try self.processFrame(
                 bgraData: bgraData,
                 width: width,
                 height: height,
@@ -128,9 +88,20 @@ public class YinGifProcessor {
             )
         }.value
     }
-
-    // ProcessingError is now defined in CanonicalRustFFI.swift
 }
 
-// MARK: - Rust FFI Functions
-// These functions are defined in RustFFIStub.swift
+// Minimal ProcessingError used here to avoid Rust dependency.
+// Using internal scope to avoid conflicts with Core/Errors.swift
+internal enum YinGifProcessingError: LocalizedError {
+    case invalidInput
+    case processingFailed(String)
+    case ffiError(code: Int32)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidInput: return "Invalid input"
+        case .processingFailed(let msg): return msg
+        case .ffiError(let code): return "FFI error: \(code)"
+        }
+    }
+}

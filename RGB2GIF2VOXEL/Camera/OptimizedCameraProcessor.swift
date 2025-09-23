@@ -8,13 +8,15 @@ import CoreVideo
 import Accelerate
 import Compression
 import Combine
+import QuartzCore
 import os.log
 
 private let performanceLog = OSLog(subsystem: "com.yingif.rgb2gif2voxel", category: "Performance")
 
 // MARK: - Optimized Camera Processor
 
-@MainActor
+// Removed @MainActor - this processor does heavy background work
+// Only UI state updates should hop to MainActor
 public class OptimizedCameraProcessor: NSObject {
 
     // MARK: - Properties
@@ -55,7 +57,7 @@ public class OptimizedCameraProcessor: NSObject {
     // MARK: - Zero-Copy Processing
 
     /// Process CVPixelBuffer directly without UIImage/CIImage conversions
-    /// Optimized for 256×256 HD quality processing (4.2:1 downsample from 1080×1080)
+    /// Optimized for 128×128 quality processing (8.4:1 downsample from 1080×1080) - N=128 optimal
     /// This is the hot path - no allocations, no copies unless necessary
     public func processFrameZeroCopy(
         _ pixelBuffer: CVPixelBuffer,
@@ -76,7 +78,7 @@ public class OptimizedCameraProcessor: NSObject {
         let bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer)
 
         guard let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer) else {
-            completion(.failure(ProcessingError.invalidInput))
+            completion(.failure(PipelineError.processingFailed("Invalid input")))
             return
         }
 
@@ -152,7 +154,7 @@ public class OptimizedCameraProcessor: NSObject {
         // Ensure it's actually YUV
         let pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer)
         guard pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange else {
-            completion(.failure(ProcessingError.invalidInput))
+            completion(.failure(PipelineError.processingFailed("Invalid input")))
             return
         }
 
@@ -162,7 +164,7 @@ public class OptimizedCameraProcessor: NSObject {
         // Get Y and UV planes
         guard let yPlane = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0),
               let uvPlane = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) else {
-            completion(.failure(ProcessingError.invalidInput))
+            completion(.failure(PipelineError.processingFailed("Invalid input")))
             return
         }
 
@@ -266,7 +268,7 @@ public class OptimizedCameraProcessor: NSObject {
                     targetSize: targetSize,
                     paletteSize: paletteSize
                 ) else {
-                    completion(.failure(ProcessingError.invalidInput))
+                    completion(.failure(PipelineError.processingFailed("Invalid input")))
                     return
                 }
 

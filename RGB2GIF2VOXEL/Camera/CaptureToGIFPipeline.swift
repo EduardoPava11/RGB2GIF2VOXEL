@@ -26,6 +26,8 @@ public class CaptureToGIFPipeline: ObservableObject {
     @Published public var progress: Double = 0
     @Published public var currentStage = ""
     @Published public var lastGIFURL: URL?
+    @Published public var lastTensorURL: URL?
+    @Published public var lastTensorData: Data?
 
     // MARK: - Pipeline Components
 
@@ -36,9 +38,9 @@ public class CaptureToGIFPipeline: ObservableObject {
     // MARK: - Frame Storage
 
     private var frameBuffer: [Data] = []
-    private let targetFrameCount = 256
+    private let targetFrameCount = 128  // N=128 optimal configuration
     private let captureSize = 1080
-    private let targetSize = 256
+    private let targetSize = 128       // N=128 optimal configuration
 
     // MARK: - Setup
 
@@ -167,39 +169,56 @@ public class CaptureToGIFPipeline: ObservableObject {
 
             progress = 0.3
 
-            // Step 2 & 3: Quantize and encode GIF in single call
-            currentStage = "Processing frames to GIF..."
-            os_log(.info, log: pipelineLog, "🎨 Processing %d frames", downsizedFrames.count)
+            // Step 2: Save tensor for voxel visualization (128x128x128 RGBA)
+            currentStage = "Saving tensor data..."
+            let tensorData = createTensorData(from: downsizedFrames)
+            let tensorURL = try saveTensor(tensorData)
+            lastTensorURL = tensorURL
+            lastTensorData = tensorData
+            os_log(.info, log: pipelineLog, "📊 Tensor saved: %@ (%d bytes)",
+                   tensorURL.lastPathComponent, tensorData.count)
+
+            progress = 0.4
+
+            // Step 3 & 4: Quantize and encode GIF89a in single call
+            currentStage = "Creating GIF89a..."
+            os_log(.info, log: pipelineLog, "🎨 Processing %d frames to GIF89a", downsizedFrames.count)
 
             // Convert array of Data to single array for processing
             let downsizedDataArray = downsizedFrames.map { $0 }
 
-            // Use new single API call
+            // Use FFI with proper N=128 configuration
             let result = await rustProcessor.processFramesToGIF(
                 frames: downsizedDataArray,
                 width: targetSize,
-                height: targetSize
+                height: targetSize,
+                includeTensor: true  // Generate voxel tensor
             )
 
-            progress = 0.6
+            progress = 0.7
 
             guard let result = result else {
                 throw CaptureError.frameProcessingFailed("Failed to process frames to GIF")
             }
 
+            // Verify GIF89a header
             let gifData = result.gifData
+            guard gifData.count > 6,
+                  gifData.prefix(6) == Data("GIF89a".utf8) else {
+                throw CaptureError.frameProcessingFailed("Invalid GIF89a format")
+            }
 
             progress = 0.9
 
-            // Step 4: Save GIF
-            currentStage = "Saving..."
+            // Step 5: Save GIF89a
+            currentStage = "Saving GIF89a..."
             let gifURL = try saveGIF(gifData)
             lastGIFURL = gifURL
 
-            os_log(.info, log: pipelineLog, "✅ GIF saved: %@ (%d bytes)",
+            os_log(.info, log: pipelineLog, "✅ GIF89a saved: %@ (%d bytes)",
                    gifURL.lastPathComponent, gifData.count)
 
-            // Step 5: Save to Photos if permission granted
+            // Step 6: Save to Photos if permission granted
             await saveToPhotoLibrary(gifURL)
 
             progress = 1.0
@@ -248,6 +267,51 @@ public class CaptureToGIFPipeline: ObservableObject {
         } catch {
             os_log(.error, log: pipelineLog, "Failed to save to Photos: %@", error.localizedDescription)
         }
+    }
+
+    // MARK: - Tensor Management
+
+    /// Create 128x128x128 RGBA tensor data from captured frames
+    private func createTensorData(from frames: [Data]) -> Data {
+        // For N=128, we need exactly 128 frames at 128x128 pixels
+        // Each frame is 128x128x4 (RGBA) = 65,536 bytes
+        // Total tensor: 128x128x128x4 = 8,388,608 bytes (8MB)
+
+        let tensorSize = targetSize * targetSize * targetFrameCount * 4
+        var tensorData = Data(capacity: tensorSize)
+
+        // Stack all frames into a 3D tensor
+        for i in 0..<targetFrameCount {
+            if i < frames.count {
+                tensorData.append(frames[i])
+            } else {
+                // Pad with empty frames if needed (shouldn't happen with proper capture)
+                let emptyFrame = Data(repeating: 0, count: targetSize * targetSize * 4)
+                tensorData.append(emptyFrame)
+            }
+        }
+
+        return tensorData
+    }
+
+    /// Save tensor data to disk for voxel visualization
+    private func saveTensor(_ data: Data) throws -> URL {
+        let documentsPath = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first!
+
+        let tensorPath = documentsPath.appendingPathComponent("Tensors")
+        try FileManager.default.createDirectory(
+            at: tensorPath,
+            withIntermediateDirectories: true
+        )
+
+        let timestamp = Int(Date().timeIntervalSince1970)
+        let outputURL = tensorPath.appendingPathComponent("tensor_\(timestamp).rgba")
+        try data.write(to: outputURL)
+
+        return outputURL
     }
 }
 

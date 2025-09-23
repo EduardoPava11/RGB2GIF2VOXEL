@@ -1,4 +1,4 @@
-// Tensor module for 256×256×256 cube operations
+// Tensor module for 128×128×128 cube operations (N=128 optimal)
 // Handles frame-major layout and efficient memory access
 
 use crate::{ProcessorError, Result};
@@ -161,23 +161,23 @@ mod tests {
 
     #[test]
     fn test_tensor_shape() {
-        let shape = TensorShape::cube(256);
-        assert_eq!(shape.width, 256);
-        assert_eq!(shape.height, 256);
-        assert_eq!(shape.frames, 256);
-        assert_eq!(shape.total_elements(), 256 * 256 * 256);
-        assert_eq!(shape.frame_size(), 256 * 256);
+        let shape = TensorShape::cube(128);
+        assert_eq!(shape.width, 128);
+        assert_eq!(shape.height, 128);
+        assert_eq!(shape.frames, 128);
+        assert_eq!(shape.total_elements(), 128 * 128 * 128);
+        assert_eq!(shape.frame_size(), 128 * 128);
     }
 
     #[test]
     fn test_voxel_indexing() {
-        let shape = TensorShape::cube(256);
+        let shape = TensorShape::cube(128);
 
         // Test corner cases
         assert_eq!(voxel_to_index(0, 0, 0, shape), 0);
         assert_eq!(voxel_to_index(1, 0, 0, shape), 4); // Next pixel (RGBA)
-        assert_eq!(voxel_to_index(0, 1, 0, shape), 256 * 4); // Next row
-        assert_eq!(voxel_to_index(0, 0, 1, shape), 256 * 256 * 4); // Next frame
+        assert_eq!(voxel_to_index(0, 1, 0, shape), 128 * 4); // Next row
+        assert_eq!(voxel_to_index(0, 0, 1, shape), 128 * 128 * 4); // Next frame
     }
 
     #[test]

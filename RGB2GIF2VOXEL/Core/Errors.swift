@@ -131,32 +131,5 @@ public enum CameraError: LocalizedError {
 }
 
 // MARK: - Processing Errors
-
-public enum ProcessingError: LocalizedError {
-    case downsamplingFailed(DownsampleError)
-    case quantizationFailed(String)
-    case encodingFailed(String)
-    case memoryPressure
-    case ffiError(code: Int32)
-    case invalidInput
-    case gifEncodingFailed(code: Int32)
-
-    public var errorDescription: String? {
-        switch self {
-        case .downsamplingFailed(let error):
-            return "Downsampling failed: \(error.localizedDescription)"
-        case .quantizationFailed(let reason):
-            return "Quantization failed: \(reason)"
-        case .encodingFailed(let reason):
-            return "Encoding failed: \(reason)"
-        case .memoryPressure:
-            return "Memory pressure detected"
-        case .ffiError(let code):
-            return "FFI processing failed with code: \(code)"
-        case .invalidInput:
-            return "Invalid input data"
-        case .gifEncodingFailed(let code):
-            return "GIF encoding failed with code: \(code)"
-        }
-    }
-}
+// ProcessingError removed - definition conflicts with YinGifProcessor.swift
+// Use PipelineError for general processing errors instead

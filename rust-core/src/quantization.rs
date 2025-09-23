@@ -16,11 +16,11 @@ pub struct QuantizeOptions {
 impl Default for QuantizeOptions {
     fn default() -> Self {
         Self {
-            quality_min: 85,      // Increased for better quality
+            quality_min: 70,      // Original value for better balance
             quality_max: 100,
-            speed: 1,             // Slowest = best quality
-            palette_size: 255,    // Reserve 1 for future transparency
-            dithering_level: 0.85, // Less aggressive, better for animations
+            speed: 3,             // Original balanced speed
+            palette_size: 256,    // Full palette
+            dithering_level: 1.0, // Original full dithering
         }
     }
 }

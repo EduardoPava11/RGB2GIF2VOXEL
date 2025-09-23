@@ -3,7 +3,7 @@
 //  RGB2GIF2VOXEL
 //
 //  Complete camera interface with dual processing paths
-//  Flow: Camera → Capture 256 frames → Downsize to 256×256 → Choose Rust/Swift → Process → Save GIF
+//  Flow: Camera → Capture 128 frames → Downsize to 128×128 → Choose Rust/Swift → Process → Save GIF
 //
 
 import SwiftUI
@@ -37,7 +37,7 @@ class MockNativeGIFEncoder {
         
         // Create mock GIF data
         var gifData = Data("GIF89a".utf8)
-        gifData.append(contentsOf: [0x00, 0x01, 0x00, 0x01]) // 256x256
+        gifData.append(contentsOf: [0x80, 0x00, 0x80, 0x00]) // 128x128
         gifData.append(Data(repeating: UInt8.random(in: 0...255), count: frames.count * 1024))
         return gifData
     }
@@ -191,7 +191,7 @@ struct CompleteDualPathCameraView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
             
-            Text("Tap the capture button to start recording 256 frames")
+            Text("Tap the capture button to start recording 128 frames")
                 .font(.body)
                 .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.center)
@@ -219,7 +219,7 @@ struct CompleteDualPathCameraView: View {
                     .rotationEffect(.degrees(-90))
                     .animation(.easeInOut, value: viewModel.captureProgress)
                 
-                Text("\(viewModel.capturedFrameCount)/256")
+                Text("\(viewModel.capturedFrameCount)/128")
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -235,7 +235,7 @@ struct CompleteDualPathCameraView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
             
-            Text("Downsizing from 1080×1080 to 256×256")
+            Text("Downsizing from 1080×1080 to 128×128")
                 .font(.body)
                 .foregroundColor(.white.opacity(0.8))
             
@@ -253,7 +253,7 @@ struct CompleteDualPathCameraView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
             
-            Text("256 frames captured and downsized\nReady for final processing")
+            Text("128 frames captured and downsized\nReady for final processing")
                 .font(.body)
                 .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.center)
@@ -543,23 +543,23 @@ class CompleteDualPathCameraViewModel: ObservableObject {
     private func startMockFrameCapture() {
         // Mock frame capture - simulate frames being captured
         Task {
-            for frameIndex in 0..<256 {
+            for frameIndex in 0..<128 {
                 guard currentPhase == .capturing else { break }
                 
-                // Generate mock frame data (256 KB per frame for 1080x1080 BGRA)
+                // Generate mock frame data for 1080x1080 BGRA
                 let mockFrameData = Data(repeating: UInt8.random(in: 0...255), count: 1080 * 1080 * 4)
                 capturedFrames.append(mockFrameData)
                 
                 await MainActor.run {
                     capturedFrameCount = capturedFrames.count
-                    captureProgress = Double(capturedFrameCount) / 256.0
+                    captureProgress = Double(capturedFrameCount) / 128.0
                 }
                 
                 // Simulate 30 FPS (33ms per frame)
                 try? await Task.sleep(nanoseconds: 33_000_000)
                 
-                // Auto-complete at 256 frames
-                if frameIndex >= 255 {
+                // Auto-complete at 128 frames
+                if frameIndex >= 127 {
                     await MainActor.run {
                         stopMockFrameCapture()
                         Task {
@@ -585,7 +585,7 @@ class CompleteDualPathCameraViewModel: ObservableObject {
         capturedFrameCount = 0
         captureProgress = 0.0
         capturedFrames.removeAll()
-        capturedFrames.reserveCapacity(256)
+        capturedFrames.reserveCapacity(128)
         
         // Mock start capture
         startMockFrameCapture()
@@ -613,7 +613,7 @@ class CompleteDualPathCameraViewModel: ObservableObject {
     // MARK: - Frame Processing
     
     private func processIncomingFrame(_ pixelBuffer: CVPixelBuffer) async {
-        guard currentPhase == .capturing, capturedFrames.count < 256 else { return }
+        guard currentPhase == .capturing, capturedFrames.count < 128 else { return }
         
         // Extract frame data (center-cropped to square)
         if let frameData = extractSquareFrameData(from: pixelBuffer) {
@@ -621,8 +621,8 @@ class CompleteDualPathCameraViewModel: ObservableObject {
             capturedFrameCount = capturedFrames.count
             captureProgress = Double(capturedFrameCount) / 256.0
             
-            // Auto-stop at 256 frames
-            if capturedFrameCount >= 256 {
+            // Auto-stop at 128 frames
+            if capturedFrameCount >= 128 {
                 stopMockFrameCapture()
                 Task {
                     await downsizeFrames()
@@ -663,17 +663,17 @@ class CompleteDualPathCameraViewModel: ObservableObject {
     
     private func downsizeFrames() async {
         currentPhase = .downsizing
-        statusMessage = "Downsizing \(capturedFrames.count) frames to 256×256"
+        statusMessage = "Downsizing \(capturedFrames.count) frames to 128×128"
         
         // Mock downsizing - simulate processing time
         try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
         
-        // Create mock downsized frames (256×256 BGRA)
+        // Create mock downsized frames (128×128 BGRA)
         downsizedFrames = capturedFrames.map { _ in
-            Data(repeating: UInt8.random(in: 0...255), count: 256 * 256 * 4)
+            Data(repeating: UInt8.random(in: 0...255), count: 128 * 128 * 4)
         }
             
-        os_log(.info, log: logger, "✅ Mock downsized %d frames to 256×256", downsizedFrames.count)
+        os_log(.info, log: logger, "✅ Mock downsized %d frames to 128×128", downsizedFrames.count)
         
         // Move to path selection
         currentPhase = .choosingPath
@@ -773,7 +773,7 @@ class CompleteDualPathCameraViewModel: ObservableObject {
         processingProgress = 0.3
         
         for (index, frameData) in downsizedFrames.enumerated() {
-            if let pixelBuffer = createPixelBuffer(from: frameData, width: 256, height: 256) {
+            if let pixelBuffer = createPixelBuffer(from: frameData, width: 128, height: 128) {
                 pixelBuffers.append(pixelBuffer)
             }
             
@@ -851,18 +851,18 @@ class CompleteDualPathCameraViewModel: ObservableObject {
         // Create realistic GIF header + data
         var gifData = Data("GIF89a".utf8)
         // Add dimensions (256x256 in little endian)
-        gifData.append(contentsOf: [0x00, 0x01, 0x00, 0x01]) // 256x256
+        gifData.append(contentsOf: [0x80, 0x00, 0x80, 0x00]) // 128x128
         // Add color table and frame data (simplified)
-        gifData.append(Data(repeating: UInt8.random(in: 0...255), count: 1024 * 256)) // ~256KB
+        gifData.append(Data(repeating: UInt8.random(in: 0...255), count: 1024 * 128)) // ~128KB
         return gifData
     }
     
     private func createMockTensorData() -> Data {
         var tensorData = Data()
         tensorData.append("TNSR".data(using: .utf8)!) // Header
-        tensorData.append(contentsOf: withUnsafeBytes(of: UInt32(256)) { Data($0) }) // Width
-        tensorData.append(contentsOf: withUnsafeBytes(of: UInt32(256)) { Data($0) }) // Height  
-        tensorData.append(contentsOf: withUnsafeBytes(of: UInt32(256)) { Data($0) }) // Frames
+        tensorData.append(contentsOf: withUnsafeBytes(of: UInt32(128)) { Data($0) }) // Width
+        tensorData.append(contentsOf: withUnsafeBytes(of: UInt32(128)) { Data($0) }) // Height
+        tensorData.append(contentsOf: withUnsafeBytes(of: UInt32(128)) { Data($0) }) // Frames
         return tensorData
     }
     

@@ -42,9 +42,9 @@ class TestPipeline {
         )
 
         let gifOpts = GifOpts(
-            width: 256,
-            height: 256,
-            frameCount: 256,
+            width: UInt16(128),  // N=128 optimal
+            height: UInt16(128),
+            frameCount: UInt16(128),
             fps: 30,
             loopCount: 0,
             optimize: true,

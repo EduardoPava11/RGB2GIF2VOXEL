@@ -55,6 +55,9 @@ class CubeCameraManagerOptimized: NSObject, ObservableObject {
     private var videoOutput: AVCaptureVideoDataOutput?
     private var needsSquareCrop: Bool = false
 
+    // Dedicated pool for square BGRA crops (avoids mismatched dimensions)
+    private var squareBufferPool: CVPixelBufferPool?
+
     // MARK: - Performance Monitoring
 
     private var frameDropCount = 0
@@ -192,6 +195,11 @@ class CubeCameraManagerOptimized: NSObject, ObservableObject {
                 os_log(.info, log: performanceLog, "✅ [SETUP] Session configuration committed")
             }
 
+            // Remove existing outputs to avoid duplicates on reconfigure
+            for output in self.session.outputs {
+                self.session.removeOutput(output)
+            }
+
             // Device discovery
             os_log(.info, log: performanceLog, "🔍 [SETUP] Discovering front camera...")
             guard let camera = self.discoverFrontCamera() else {
@@ -202,9 +210,13 @@ class CubeCameraManagerOptimized: NSObject, ObservableObject {
 
             self.frontCamera = camera
 
-            // Add camera input
-            os_log(.info, log: performanceLog, "📹 [SETUP] Creating camera input...")
+            // Add camera input (replace existing if any)
             do {
+                // Remove existing inputs first
+                for input in self.session.inputs {
+                    self.session.removeInput(input)
+                }
+
                 let input = try AVCaptureDeviceInput(device: camera)
                 if self.session.canAddInput(input) {
                     self.session.addInput(input)
@@ -265,13 +277,17 @@ class CubeCameraManagerOptimized: NSObject, ObservableObject {
                 os_log(.error, log: performanceLog, "❌ [SETUP] Cannot add video output to session")
             }
 
-            // Setup processor buffer pool
+            // Setup processor buffer pool and square crop pool
             Task { @MainActor in
                 self.optimizedProcessor.setupBufferPool(
                     width: formatInfo.cleanApertureWidth,
                     height: formatInfo.cleanApertureHeight
                 )
-                os_log(.info, log: performanceLog, "✅ [SETUP] Processor buffer pool configured")
+
+                let squareSize = min(formatInfo.cleanApertureWidth, formatInfo.cleanApertureHeight)
+                self.createSquareBufferPool(size: squareSize)
+
+                os_log(.info, log: performanceLog, "✅ [SETUP] Processor and square buffer pools configured")
             }
 
             os_log(.info, log: performanceLog, "✅ [SETUP] Camera session fully configured")
@@ -288,6 +304,30 @@ class CubeCameraManagerOptimized: NSObject, ObservableObject {
             os_log(.info, log: performanceLog, "📊 [SETUP] Final state - Inputs: %d, Outputs: %d, Running: %@",
                    self.session.inputs.count, self.session.outputs.count, self.session.isRunning ? "YES" : "NO")
         }
+    }
+
+    private func createSquareBufferPool(size: Int) {
+        let poolAttributes: [String: Any] = [
+            kCVPixelBufferPoolMinimumBufferCountKey as String: 3
+        ]
+        let pixelBufferAttributes: [String: Any] = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+            kCVPixelBufferWidthKey as String: size,
+            kCVPixelBufferHeightKey as String: size,
+            kCVPixelBufferBytesPerRowAlignmentKey as String: size * 4,
+            kCVPixelBufferIOSurfacePropertiesKey as String: [:]
+        ]
+
+        var pool: CVPixelBufferPool?
+        CVPixelBufferPoolCreate(
+            kCFAllocatorDefault,
+            poolAttributes as CFDictionary,
+            pixelBufferAttributes as CFDictionary,
+            &pool
+        )
+        self.squareBufferPool = pool
+
+        os_log(.info, log: performanceLog, "📦 Square buffer pool created: %dx%d", size, size)
     }
 
     // MARK: - Format Discovery (Enhanced)
@@ -503,32 +543,37 @@ extension CubeCameraManagerOptimized: AVCaptureVideoDataOutputSampleBufferDelega
             os_log(.info, log: performanceLog, "📐 [FRAME] First frame dimensions: %dx%d", width, height)
         }
 
-        // Apply center crop if needed (using pool if possible)
-        let squareBuffer: CVPixelBuffer
-        if needsSquareCrop {
-            guard let cropped = centerCropToSquareOptimized(pixelBuffer) else {
-                os_log(.error, log: performanceLog, "❌ [FRAME] Failed to crop frame")
-                return
-            }
-            squareBuffer = cropped
-
-            if clipController.framesCaptured == 0 {
-                let croppedWidth = CVPixelBufferGetWidth(squareBuffer)
-                let croppedHeight = CVPixelBufferGetHeight(squareBuffer)
-                os_log(.info, log: performanceLog, "✂️ [FRAME] Cropped to: %dx%d", croppedWidth, croppedHeight)
-            }
-        } else {
-            squareBuffer = pixelBuffer
-        }
-
-        // Process based on capture mode
+        // Process based on capture mode, applying crop only for BGRA
         switch captureMode {
         case .bgra:
+            // Apply center crop if needed for BGRA (using a correctly-sized pool)
+            let squareBuffer: CVPixelBuffer
+            if needsSquareCrop {
+                guard let cropped = centerCropToSquareOptimized(pixelBuffer) else {
+                    os_log(.error, log: performanceLog, "❌ [FRAME] Failed to crop BGRA frame")
+                    return
+                }
+                squareBuffer = cropped
+
+                if clipController.framesCaptured == 0 {
+                    let croppedWidth = CVPixelBufferGetWidth(squareBuffer)
+                    let croppedHeight = CVPixelBufferGetHeight(squareBuffer)
+                    os_log(.info, log: performanceLog, "✂️ [FRAME] Cropped to: %dx%d", croppedWidth, croppedHeight)
+                }
+            } else {
+                squareBuffer = pixelBuffer
+            }
             os_log(.debug, log: performanceLog, "🎨 [FRAME] Processing BGRA frame %d", clipController.framesCaptured)
             processBGRAFrame(squareBuffer, timestamp: timestamp)
+
         case .yuv420f:
+            // YUV cropping not yet implemented - use uncropped buffer
+            // TODO: Implement proper per-plane YUV cropping
+            if needsSquareCrop {
+                os_log("⚠️ [FRAME] YUV cropping not implemented, using uncropped buffer", log: performanceLog, type: .info)
+            }
             os_log(.debug, log: performanceLog, "🎨 [FRAME] Processing YUV420f frame %d", clipController.framesCaptured)
-            processYUVFrame(squareBuffer, timestamp: timestamp)
+            processYUVFrame(pixelBuffer, timestamp: timestamp)
         }
     }
 
@@ -616,7 +661,8 @@ extension CubeCameraManagerOptimized: AVCaptureVideoDataOutputSampleBufferDelega
         frameDropCount += 1
         metrics.droppedFrames = frameDropCount
 
-        let reason = CMGetAttachment(sampleBuffer, key: kCMSampleBufferAttachmentKey_DroppedFrameReason, attachmentModeOut: nil) as? String ?? "unknown"
+        let attachment = CMGetAttachment(sampleBuffer, key: kCMSampleBufferAttachmentKey_DroppedFrameReason, attachmentModeOut: nil)
+        let reason = attachment.map { String(describing: $0) } ?? "unknown"
         os_log(.info, log: performanceLog, "⚠️ Frame dropped: %@", reason)
     }
 
@@ -631,19 +677,18 @@ extension CubeCameraManagerOptimized: AVCaptureVideoDataOutputSampleBufferDelega
         let xOffset = (width - targetSize) / 2
         let yOffset = (height - targetSize) / 2
 
-        // Try to use pooled buffer if available
+        // Allocate from dedicated square pool if available
         var outputBuffer: CVPixelBuffer?
-
-        if let pool = optimizedProcessor.pixelBufferPool {
+        if let pool = squareBufferPool {
             CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, pool, &outputBuffer)
         }
 
         if outputBuffer == nil {
-            // Fallback to regular allocation
+            // Fallback to explicit allocation with correct square dimensions
             CVPixelBufferCreate(
                 kCFAllocatorDefault,
                 targetSize, targetSize,
-                CVPixelBufferGetPixelFormatType(pixelBuffer),
+                kCVPixelFormatType_32BGRA,
                 nil,
                 &outputBuffer
             )
